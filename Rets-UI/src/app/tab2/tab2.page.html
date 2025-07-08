@@ -1,0 +1,70 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-title class="">Workout</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="">
+
+  <!-- Quick Start & Empty Workout Button   -->
+  <ion-label class="relative top-2 p-4">Quick Start</ion-label>
+  <ion-button class="ion-padding" fill="outline" expand="block" color="primary">
+    Start Empty Workout
+  </ion-button>
+
+  <!-- All Splits Dropdown -->
+  <ion-accordion-group value="first" class="mt-4">
+    <ion-accordion value="first" toggleIcon="chevron-down-outline" toggleIconSlot="start" expand="inset" mode="ios">
+      
+      <!-- All Splits Dropdown Header-->
+      <ion-item slot="header" color="translucent">
+        <ion-label>Your Splits</ion-label>
+        <ion-icon (click)="onAddClick($event)" name="add-circle-outline"></ion-icon>
+      </ion-item>
+      
+      <!-- All Splits Dropdown Content-->
+      <ion-list slot="content" class="relative top-[-15px]">
+        <ion-list *ngIf="splits.length > 0; else noSplits" class="">
+          <ion-card *ngFor="let split of splits; let i = index" class="ripple-parent p-6 py-3">
+            <div class="split-card-header">
+              <ion-label>
+                <h1>{{ split.splitName }}</h1>
+                <p>{{ split.exerciseIds.length }} exercises</p>
+              </ion-label>
+              <ion-icon [id]="'popover-trigger-' + i" name="ellipsis-vertical" class="more-icon"></ion-icon>
+              <ion-popover [trigger]="'popover-trigger-' + i" triggerAction="click" side="bottom" alignment="end">
+                <ng-template>
+                  <ion-content class="">
+                    <ion-item button>
+                      <ion-label (click)="handleEditClick(split.splitId)">Edit</ion-label>
+                    </ion-item>
+                    <ion-item button>
+                      <ion-label id="delteSplit" color="danger">Delete</ion-label>
+                      <ion-alert
+                        trigger="delteSplit"
+                        header="Are you sure ?"
+                        [buttons]="alertButtons"
+                        (didDismiss)="handleDeleteClick($event, split.splitId)"
+                      ></ion-alert>
+                    </ion-item>
+                  </ion-content>
+                </ng-template>
+              </ion-popover>
+            </div>
+            <ion-button class="mt-4" expand="block" color="primary" (click)="handleStartWorkoutClick(split.splitId)">
+              Start
+            </ion-button>
+          </ion-card>
+        </ion-list>
+        <ng-template #noSplits>
+          <div class="ion-padding text-center">
+            <ion-text *ngIf="!isLoading" color="medium" class="ion-padding text-center">
+              <p color="medium">No splits found. Go create one!</p>
+            </ion-text>
+            <ion-spinner *ngIf="isLoading" name="dots" class=""></ion-spinner>
+          </div>
+        </ng-template>
+      </ion-list>    
+    </ion-accordion>
+</ion-accordion-group>
+</ion-content>

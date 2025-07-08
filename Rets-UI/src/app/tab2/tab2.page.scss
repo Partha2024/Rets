@@ -1,0 +1,14 @@
+.split-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  gap: 10px;
+}
+
+.more-icon {
+  font-size: 22px;
+  cursor: pointer;
+  position: absolute;
+  right: 12px;
+  top: 12px;
+}

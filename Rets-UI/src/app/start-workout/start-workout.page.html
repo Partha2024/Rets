@@ -1,0 +1,110 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>{{ splitName }}</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveWorkout()"> End </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="">
+
+
+  <ion-list class="mt-6">
+    <ion-card class="bg-transparent mx-0 mt-0 mb-6" *ngFor="let exercise of selectedExercises">
+      <!-- Card Header -->
+      <ion-card-header class="p-0">
+        <ion-item lines="none" class="p-0">
+          <ion-thumbnail slot="start" class="circle-thumb">
+            <img [src]="'./assets/exercises/' + exercise.Exercise_image" alt="" />
+          </ion-thumbnail>
+          <ion-label>
+            <h2 class="">
+              {{ exercise.Exercise_name }}
+            </h2>
+          </ion-label>
+          <ion-icon [id]="'popover-trigger-'" name="ellipsis-vertical" class="more-icon relative right-[-5px] text-base"></ion-icon>
+          <ion-popover [trigger]="'popover-trigger-'" triggerAction="click" side="bottom" alignment="end">
+            <ng-template>
+              <ion-content class="">
+                <ion-item button>
+                  <ion-label>
+                    Edit
+                  </ion-label>
+                </ion-item>
+                <ion-item button>
+                  <ion-label id="delteSplit" color="danger">Delete</ion-label>
+                  <ion-alert
+                    trigger="delteSplit"
+                    header="Are you sure ?"
+                  ></ion-alert>
+                </ion-item>
+              </ion-content>
+            </ng-template>
+          </ion-popover>
+        </ion-item>
+      </ion-card-header>
+      <!-- Card Content -->
+      <ion-card-content class="py-0 px-0">
+        <!-- Table Label -->
+        <div class="labels my-4 flex justify-around items-center text-base text-center">
+          <div class="setNumber w-7 text-center">SET</div>
+          <div class="previous w-[115px] text-center">PREVIOUS</div>
+          <div class="weight w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">WEIGHT</div>
+          <div class="reps w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps' || exercise.Exercise_type === 'Weighted Reps'">REPS</div>
+          <div class="reps w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">Time</div>
+          <div class="w-6 flex align-middle text-center">
+            <ion-icon name="checkmark-outline" class="text-[24px]"></ion-icon>
+          </div>
+        </div>
+        <!-- Dynamic Rows -->
+        <div *ngFor="let item of lastSessionData[exercise.Exercise_id]; let i = index" [ngClass]="{'bg-slate-900': i % 2 !== 0 }" class="inputContainer h-12 flex justify-around items-center">
+          <div class="setNumber w-7 text-center text-white">
+            <ion-input [readonly]="true" [value]="i + 1"></ion-input>
+          </div>
+          <div class="previous w-[115px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps'">
+            <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.reps+' Reps'"></ion-input>
+          </div>
+          <div class="previous w-[115px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
+            <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.weight+'kg x '+lastSessionData?.[exercise.Exercise_id]?.[i]?.reps+' Reps'"></ion-input>
+          </div>
+          <div class="previous w-[115px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
+            <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.time"></ion-input>
+          </div>
+          <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
+            <ion-input aria-label="Number input" type="number" [value]="" [(ngModel)]="setInputs[exercise.Exercise_id][i].weight" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.weight"></ion-input>
+          </div>
+          <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Bodyweight Reps' || exercise.Exercise_type === 'Weighted Reps'">
+            <ion-input aria-label="Number input" type="number" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.reps" [(ngModel)]="setInputs[exercise.Exercise_id][i].reps"></ion-input>
+          </div>
+          <div class="reps w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
+            <ion-input aria-label="Number input" type="number" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.time" [(ngModel)]="setInputs[exercise.Exercise_id][i].time"></ion-input>
+          </div>
+          <ion-checkbox slot="end" class="w-6"></ion-checkbox>
+        </div>
+        <!-- Add Set Button -->
+        <ion-button expand="block" size="small" class="m-4 h-[45px] text-base" color="light">
+          <ion-icon class="mr-2" name="add-outline"></ion-icon>
+          Add Set
+        </ion-button>
+      </ion-card-content>
+    </ion-card>
+    <div class="flex justify-evenly items-center mb-4">
+      <ion-button expand="block" size="small" class="m-y h-[45px] w-[170px] text-base font-semibold" fill="outline">
+        <ion-icon class="mr-2" name="add-outline"></ion-icon> Add Exercise
+      </ion-button>
+      <ion-button expand="block" size="small" class="m-y h-[45px] w-[170px] text-base" color="danger" fill="outline">
+        <!-- <ion-icon class="mr-2" name="trash-outline"></ion-icon> -->
+        Discard Workout
+      </ion-button>
+    </div>
+  </ion-list>
+
+  <!-- <ion-button expand="block" (click)="addExercise()">Add Exercise</ion-button> -->
+  <!-- <ion-button expand="block" color="success" (click)="saveSplit()" class="mx-3">Save Split</ion-button>   -->
+</ion-content>
