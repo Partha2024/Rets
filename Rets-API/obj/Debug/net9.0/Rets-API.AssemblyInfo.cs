@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Rets-API")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5c9f05ce1b9659ea2de2bec6157c3c696b753db8")]
 [assembly: System.Reflection.AssemblyProductAttribute("Rets-API")]
 [assembly: System.Reflection.AssemblyTitleAttribute("Rets-API")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
