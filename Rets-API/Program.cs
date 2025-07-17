@@ -5,6 +5,8 @@ using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddMemoryCache();
+
 // Load environment variables from .env file if in development mode
 if (builder.Environment.IsDevelopment())
 {
@@ -16,9 +18,11 @@ if (builder.Environment.IsDevelopment())
 string? connectionString = Environment.GetEnvironmentVariable("DATABASE_URL"); 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-  // options.UseNpgsql(builder.Configuration.GetConnectionString("DefaultConnection"),
-  options.UseNpgsql(connectionString,
-  npgsqlOptions => npgsqlOptions.EnableRetryOnFailure())
+  options.UseNpgsql(connectionString, npgsqlOptions =>
+  {
+    npgsqlOptions.EnableRetryOnFailure();
+    npgsqlOptions.CommandTimeout(60);
+  })
   .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 );
 

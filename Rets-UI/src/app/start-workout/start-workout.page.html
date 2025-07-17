@@ -54,7 +54,7 @@
         <!-- Table Label -->
         <div class="labels my-4 flex justify-around items-center text-base text-center">
           <div class="setNumber w-7 text-center">SET</div>
-          <div class="previous w-[115px] text-center">PREVIOUS</div>
+          <div class="previous w-[120px] text-center">PREVIOUS</div>
           <div class="weight w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">WEIGHT</div>
           <div class="reps w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps' || exercise.Exercise_type === 'Weighted Reps'">REPS</div>
           <div class="reps w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">Time</div>
@@ -67,13 +67,13 @@
           <div class="setNumber w-7 text-center text-white">
             <ion-input [readonly]="true" [value]="i + 1"></ion-input>
           </div>
-          <div class="previous w-[115px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps'">
+          <div class="previous w-[120px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps'">
             <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.reps+' Reps'"></ion-input>
           </div>
-          <div class="previous w-[115px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
+          <div class="previous w-[120px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
             <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.weight+'kg x '+lastSessionData?.[exercise.Exercise_id]?.[i]?.reps+' Reps'"></ion-input>
           </div>
-          <div class="previous w-[115px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
+          <div class="previous w-[120px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
             <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData?.[exercise.Exercise_id]?.[i]?.time"></ion-input>
           </div>
           <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Weighted Reps'">

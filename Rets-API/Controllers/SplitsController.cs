@@ -2,7 +2,8 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Rets_API.Models;
 using Rets_API.Dtos;
-using Rets_API.Data;  
+using Rets_API.Data;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace Rets_API.Controllers
 {
@@ -11,10 +12,12 @@ namespace Rets_API.Controllers
   public class SplitsController : ControllerBase
   {
     private readonly ApplicationDbContext _context;
+    private readonly IMemoryCache _cache;
 
-    public SplitsController(ApplicationDbContext context)
+    public SplitsController(ApplicationDbContext context, IMemoryCache cache)
     {
       _context = context;
+      _cache = cache;
     }
 
     [HttpPost]
@@ -47,6 +50,19 @@ namespace Rets_API.Controllers
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSplit(int id)
     {
+      if (_cache.TryGetValue("Splits", out var allSplits))
+      {
+        var warmup = _context.Splits
+        .Include(s => s.SplitExercises)
+        .ThenInclude(se => se.Exercise)
+        .FirstOrDefaultAsync(s => s.SplitId == id);
+
+        Console.WriteLine($"inside All Spilts Cache ✅");
+        var cachedSplit = ((IEnumerable<SplitDto>)allSplits).FirstOrDefault(s => s.SplitId == id);
+        Console.WriteLine($"[GetSplit] Returned from cache for ID: {id} ✅");
+        return Ok(cachedSplit);
+      }
+
       var split = await _context.Splits
         .Include(s => s.SplitExercises)
         .ThenInclude(se => se.Exercise)
@@ -71,7 +87,11 @@ namespace Rets_API.Controllers
     [HttpGet("all")]
     public async Task<IActionResult> GetSplits()
     {
-      var sw = System.Diagnostics.Stopwatch.StartNew();
+      if (_cache.TryGetValue("Splits", out var allSplits))
+      {
+        Console.WriteLine("[All Splits] Returned from cache ✅");
+        return Ok(allSplits);
+      }
 
       var splits = await _context.Splits
         .Include(s => s.SplitExercises)
@@ -84,8 +104,10 @@ namespace Rets_API.Controllers
         DefaultDay = split.DefaultDay,
         ExerciseIds = split.SplitExercises.Select(se => se.ExerciseId).ToList()
       }); 
-      sw.Stop();
-      Console.WriteLine($"🚀GetSplits: fetched in {sw.ElapsedMilliseconds} ms");
+
+      _cache.Set("Splits", dtos, TimeSpan.FromMinutes(10));
+      Console.WriteLine("[Splits] Cached result ✅");
+
       return Ok(dtos);
     }
 
@@ -94,6 +116,7 @@ namespace Rets_API.Controllers
     {
       try
       {
+        await _context.Database.ExecuteSqlRawAsync("SELECT 1");
         var split = await _context.Splits
           .Include(s => s.SplitExercises)
           .FirstOrDefaultAsync(s => s.SplitId == id);
@@ -108,6 +131,7 @@ namespace Rets_API.Controllers
         sw.Stop();
 
         Console.WriteLine($"SaveChangesAsync took {sw.ElapsedMilliseconds} ms");
+        _cache.Remove("Splits");
         return Ok(new { message = $"Split with ID {id} deleted successfully." });
       }
       catch (Exception ex)

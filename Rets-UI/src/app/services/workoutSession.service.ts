@@ -39,16 +39,19 @@ export class WorkoutService {
   constructor(private http: HttpClient) {}
 
   createWorkoutSession(workoutPayload: any): Observable<any> {
-    return this.http.post(this.apiUrl, workoutPayload);
+    return this.http.post(`${this.apiUrl}/createSession`, workoutPayload);
   }
 
   getWorkoutSessions(): Observable<workoutSession[]> {
-    return this.http.get<workoutSession[]>(`${this.apiUrl}/all`);
-    // return this.http.get<workoutSession[]>(`${this.apiUrl}`);
+    return this.http.get<workoutSession[]>(`${this.apiUrl}/getAllWorkoutSessions`);
   }
 
   getLastSessionBySplitId(splitId: number): Observable<lastWorkoutSession> {
-    return this.http.get<lastWorkoutSession>(`${this.apiUrl}/last-session/${splitId}`);
+    return this.http.get<lastWorkoutSession>(`${this.apiUrl}/getLastWorkoutSession/${splitId}`);
+  }
+
+  deleteWorkoutSession(sessionId: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/deleteWorkoutSession/${sessionId}`);
   }
 
 }

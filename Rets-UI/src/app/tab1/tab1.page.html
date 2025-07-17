@@ -116,15 +116,15 @@
     <ion-item lines="full" class="p-0">
       <ion-label class="p-0 m-0 mt-2">
         <h2 class="text-xl"><strong>{{ session.split.splitName }}</strong></h2>
-        <ion-text class="text-sm relative top-[-2px]" color="medium">{{ session.startTime | date: 'dd MMMM yy' }}</ion-text>
+        <ion-text class="text-sm/7 relative top-[-2px] line" color="medium">{{ session.startTime | date: 'dd MMMM yy' }}</ion-text>
       </ion-label>
       <ion-icon
-        [id]="'popover-trigger-'"
+        [id]="'popover-trigger-' + i"
         name="ellipsis-vertical"
         class="more-icon relative right-[-5px] top-[-5px] text-[20px]"
       ></ion-icon>
       <ion-popover
-        [trigger]="'popover-trigger-'"
+        [trigger]="'popover-trigger-' + i"
         triggerAction="click"
         side="bottom"
         alignment="end"
@@ -132,13 +132,12 @@
         <ng-template>
           <ion-content class="">
             <ion-item button>
-              <ion-label> Edit </ion-label>
-            </ion-item>
-            <ion-item button>
               <ion-label id="delteSplit" color="danger">Delete</ion-label>
               <ion-alert
                 trigger="delteSplit"
                 header="Are you sure ?"
+                [buttons]="alertButtons"
+                (didDismiss)="handleDeleteClick($event, session.sessionId)"
               ></ion-alert>
             </ion-item>
           </ion-content>
@@ -152,7 +151,7 @@
         <ion-input
           [readonly]="true"
           labelPlacement="stacked"
-          value="999kg"
+          [value]="groupedSessions[i].totalVolume+' Kg'"
         >
           <div slot="label"><ion-text color="medium">Volume</ion-text></div>
         </ion-input>
@@ -161,7 +160,7 @@
         <ion-input
           [readonly]="true"
           labelPlacement="stacked"
-          value="22"
+          [value]="groupedSessions[i].totalSets"
         >
           <div slot="label"><ion-text color="medium">Sets</ion-text></div>
         </ion-input>
@@ -172,10 +171,10 @@
     <ion-item-group *ngFor="let session of groupedSessions[i].exercises" class="pb-2">
       <ion-item [button]="true" detail="false" lines="none" class="mb-2">
         <ion-thumbnail slot="start" class="circle-thumb">
-          <img [src]="'./assets/exercises/' + session.exerciseImage " alt="" />
+          <img [src]="'./assets/exercises/' + session.Exercise_image " alt="" />
         </ion-thumbnail>
         <ion-label>
-            {{ session.numberOfSets }} Sets of {{ session.exerciseName }}
+            {{ session.numberOfSets }} Sets of {{ session.Exercise_name }}
         </ion-label>
       </ion-item>
       <!-- <ion-grid class="text-sm px-0 mb-1" [fixed]="true">
