@@ -5,6 +5,13 @@ using DotNetEnv;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// ⛔ Disable HTTPS redirection
+builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
+{
+  options.HttpsPort = null;
+});
+
+
 builder.Services.AddMemoryCache();
 
 // Load environment variables from .env file if in development mode
