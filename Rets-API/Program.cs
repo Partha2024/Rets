@@ -59,15 +59,15 @@ var app = builder.Build();
 
 app.UseCors();
 
-if (app.Environment.IsDevelopment())
-{
+// if (app.Environment.IsDevelopment())
+// {
   app.MapOpenApi();
   app.UseSwagger();
   app.UseSwaggerUI(c => 
   {
       c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
   });
-}
+// }
 
 // app.UseHttpsRedirection();
 app.UseAuthorization();
