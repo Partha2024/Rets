@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">Rets</string>
+    <string name="title_activity_main">Rets</string>
+    <string name="package_name">com.fusion.rets</string>
+    <string name="custom_url_scheme">com.fusion.rets</string>
+</resources>

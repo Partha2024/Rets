@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface Exercise {
   exerciseId: string;
@@ -16,7 +17,8 @@ export interface Exercise {
 })
 export class ExerciseService {
 
-  private apiUrl = 'http://localhost:5062/api/Exercise';
+  private apiUrl = `${environment.apiUrl}/api/Exercise`;
+  
   constructor(private http: HttpClient) { }
 
   getExercises(): Observable<Exercise[]> {

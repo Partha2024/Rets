@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from 'src/environments/environment';
 
 export interface Split {
   splitId?: number;
@@ -14,7 +15,7 @@ export interface Split {
 })
 export class SplitService {
 
-  private apiUrl = 'http://localhost:5062/api/Splits';
+  private apiUrl = `${environment.apiUrl}/api/Splits`;
 
   constructor(private http: HttpClient) {}
 

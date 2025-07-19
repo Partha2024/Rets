@@ -1,8 +1,8 @@
 import type { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'Rets-UI',
+  appId: 'com.fusion.rets',
+  appName: 'Rets',
   webDir: 'www'
 };
 
