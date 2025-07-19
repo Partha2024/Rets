@@ -1,1 +1,20 @@
+# Ignore user secrets, environment files
 **/.env
+**/.env.*
+
+# Ignore build output
+**/bin/
+**/obj/
+
+# Ignore VS/VS Code project settings (if you use them)
+.vscode/
+*.user
+*.suo
+
+# Ignore build artifacts and publish output
+**/out/
+**/publish/
+
+# Ignore OS / Editor junk
+.DS_Store
+Thumbs.db

@@ -25,12 +25,12 @@ if (builder.Environment.IsDevelopment())
 string? connectionString = Environment.GetEnvironmentVariable("DATABASE_URL"); 
 
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-  options.UseNpgsql(connectionString, npgsqlOptions =>
-  {
-    npgsqlOptions.EnableRetryOnFailure();
-    npgsqlOptions.CommandTimeout(60);
-  })
-  .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
+    options.UseNpgsql(connectionString, npgsqlOptions =>
+    {
+        npgsqlOptions.EnableRetryOnFailure();
+        npgsqlOptions.CommandTimeout(60);
+    })
+    .UseQueryTrackingBehavior(QueryTrackingBehavior.NoTracking)
 );
 
 
@@ -41,20 +41,19 @@ builder.Services.AddSwaggerGen(c =>
 {
   c.SwaggerDoc("v1", new OpenApiInfo { Title = "My API", Version = "v1" });
 });
-builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-    options.AddDefaultPolicy(policy =>
-    {
-        policy.WithOrigins(
-            "http://localhost:8100",
-            "https://rets-backend.onrender.com",
-            "capacitor://localhost"
-        )
-        .AllowAnyHeader()
-        .AllowAnyMethod();
-    });
+  options.AddDefaultPolicy(policy =>
+  {
+    policy.WithOrigins(
+          "http://localhost:8100",
+          "https://rets-backend.onrender.com",
+          "capacitor://localhost"
+      )
+      .AllowAnyHeader()
+      .AllowAnyMethod();
+  });
 });
 
 
@@ -63,17 +62,15 @@ var app = builder.Build();
 
 app.UseCors();
 
-// if (app.Environment.IsDevelopment())
-// {
-  app.MapOpenApi();
-  app.UseSwagger();
-  app.UseSwaggerUI(c => 
-  {
-      c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
-  });
-// }
+if (app.Environment.IsDevelopment() || app.Environment.IsProduction())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(c =>
+    {
+        c.SwaggerEndpoint("/swagger/v1/swagger.json", "My API V1");
+    });
+}
 
-// app.UseHttpsRedirection();
 app.UseAuthorization();
 
 app.MapControllers();
