@@ -45,12 +45,16 @@ builder.Services.AddOpenApi();
 
 builder.Services.AddCors(options =>
 {
-  options.AddDefaultPolicy(policy =>
-  {
-    policy.WithOrigins("http://localhost:8100")
-      .AllowAnyHeader()
-      .AllowAnyMethod();
-  });
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.WithOrigins(
+            "http://localhost:8100",
+            "https://rets-backend.onrender.com",
+            "capacitor://localhost"
+        )
+        .AllowAnyHeader()
+        .AllowAnyMethod();
+    });
 });
 
 
