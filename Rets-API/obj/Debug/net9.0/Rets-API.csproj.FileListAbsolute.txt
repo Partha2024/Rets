@@ -129,3 +129,9 @@ C:\Users\pc\Development\.net\Rets\Rets-API\obj\Debug\net9.0\ref\Rets-API.dll
 C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\DotNetEnv.dll
 C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\Sprache.dll
 C:\Users\pc\Development\.net\Rets\Rets-API\obj\Debug\net9.0\Rets-API.sourcelink.json
+C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\out\web.config
+C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\out\appsettings.Development.json
+C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\out\appsettings.json
+C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\out\Rets-API.deps.json
+C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\out\Rets-API.runtimeconfig.json
+C:\Users\pc\Development\.net\Rets\Rets-API\bin\Debug\net9.0\out\Rets-API.staticwebassets.endpoints.json
