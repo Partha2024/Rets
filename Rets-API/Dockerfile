@@ -2,12 +2,15 @@
 FROM mcr.microsoft.com/dotnet/sdk:9.0-preview AS build
 WORKDIR /source
 
-# Copy and restore
-COPY *.csproj ./
+# Copy csproj and restore
+COPY rets-API/rets-API.csproj ./rets-API/
+WORKDIR /source/rets-API
 RUN dotnet restore
 
-# Copy the rest of the source
-COPY . ./
+# Copy everything and publish
+WORKDIR /source
+COPY . .
+WORKDIR /source/rets-API
 RUN dotnet publish -c Release -o /app/publish /p:UseAppHost=false
 
 # Stage 2: Runtime
@@ -15,8 +18,7 @@ FROM mcr.microsoft.com/dotnet/aspnet:9.0-preview
 WORKDIR /app
 COPY --from=build /app/publish .
 
-# Listen on Render's expected port
 ENV ASPNETCORE_URLS=http://+:8080
 EXPOSE 8080
 
-ENTRYPOINT ["dotnet", "Rets-API.dll"]
+ENTRYPOINT ["dotnet", "rets-API.dll"]
