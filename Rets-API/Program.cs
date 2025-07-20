@@ -49,7 +49,9 @@ builder.Services.AddCors(options =>
     policy.WithOrigins(
           "http://localhost:8100",
           "https://rets-backend.onrender.com",
-          "capacitor://localhost"
+          "capacitor://localhost",
+          "https://localhost",
+          "http://10.78.177.197:8100"
       )
       .AllowAnyHeader()
       .AllowAnyMethod();

@@ -5,7 +5,11 @@ import {
   workoutSession,
 } from '../services/workoutSession.service';
 import { OverlayEventDetail } from '@ionic/core';
-import { PopoverController, ToastController } from '@ionic/angular';
+import {
+  PopoverController,
+  ToastController,
+  RefresherCustomEvent,
+} from '@ionic/angular';
 
 @Component({
   selector: 'app-tab1',
@@ -13,10 +17,12 @@ import { PopoverController, ToastController } from '@ionic/angular';
   styleUrls: ['tab1.page.scss'],
   standalone: false,
 })
+
 export class Tab1Page {
   splitName?: string;
   workoutSessions: workoutSession[] = [];
   groupedSessions: any[] = [];
+  isRefreshing: boolean = false;
 
   exercises = [
     {
@@ -432,7 +438,7 @@ export class Tab1Page {
   constructor(
     private workoutService: WorkoutService,
     private popoverController: PopoverController,
-    private toastController: ToastController,
+    private toastController: ToastController
   ) {}
 
   public alertButtons = [
@@ -484,7 +490,7 @@ export class Tab1Page {
           );
 
           let totalSets = session.exerciseLogs.length;
-          var totalVolume = 0; 
+          var totalVolume = 0;
           session.exerciseLogs.forEach((log: any) => {
             if (log.reps != null && log.weight != null) {
               totalVolume += log.reps * log.weight;
@@ -494,7 +500,7 @@ export class Tab1Page {
             sessionId: session.sessionId,
             exercises,
             totalVolume,
-            totalSets
+            totalSets,
           };
         });
         console.log('Grouped Sessions:', this.groupedSessions);
@@ -505,32 +511,45 @@ export class Tab1Page {
     });
   }
 
-  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, sessionId: number|undefined) {
-      await this.popoverController.dismiss();
-      console.log(`Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`);
-      if(event.detail.role === 'confirm' && sessionId !== undefined) {
-        this.workoutService.deleteWorkoutSession(sessionId).subscribe({
-          next: async () => {
-            console.log(`Deleted session with id: ${sessionId}`);
-            const toast = await this.toastController.create({
-              message: 'Session Deleted Successfully.',
-              duration: 3000,
-              color: 'success',
-              position: 'bottom',
-            });
-            await toast.present();
-            this.workoutSessions = this.workoutSessions.filter(
-              (session) => session.sessionId !== sessionId
-            );
-            this.groupedSessions = this.groupedSessions.filter(
-              (session) => session.sessionId !== sessionId
-            );
-          },
-          error: (err) => {
-            console.error('Error deleting session:', err);
-          }
-        });
-      }
+  async handleDeleteClick(
+    event: CustomEvent<OverlayEventDetail>,
+    sessionId: number | undefined
+  ) {
+    await this.popoverController.dismiss();
+    console.log(
+      `Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`
+    );
+    if (event.detail.role === 'confirm' && sessionId !== undefined) {
+      this.workoutService.deleteWorkoutSession(sessionId).subscribe({
+        next: async () => {
+          console.log(`Deleted session with id: ${sessionId}`);
+          const toast = await this.toastController.create({
+            message: 'Session Deleted Successfully.',
+            duration: 3000,
+            color: 'success',
+            position: 'bottom',
+          });
+          await toast.present();
+          this.workoutSessions = this.workoutSessions.filter(
+            (session) => session.sessionId !== sessionId
+          );
+          this.groupedSessions = this.groupedSessions.filter(
+            (session) => session.sessionId !== sessionId
+          );
+        },
+        error: (err) => {
+          console.error('Error deleting session:', err);
+        },
+      });
     }
+  }
 
+  doRefresh(event: RefresherCustomEvent) {
+    console.log('Refresh started');
+    this.isRefreshing = true;
+    this.ngOnInit();
+    console.log('Refresh completed!');
+    this.isRefreshing = false;
+    event.target.complete(); // Mark the refresher as complete
+  }
 }
