@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
 import type { OverlayEventDetail } from '@ionic/core';
-import { PopoverController } from '@ionic/angular';
+import { PopoverController, RefresherCustomEvent } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
@@ -15,6 +15,7 @@ export class Tab2Page {
   splits: Split[] = [];
 
   isLoading: boolean = true;
+  isRefreshing: boolean = false;
 
   constructor(
     private router: Router,
@@ -98,6 +99,15 @@ export class Tab2Page {
     console.log(`Edit split_id: ${split_id}`);
     // this.router.navigate(['/create-split?split_id=' + split_id]);
     this.router.navigate(['/start-workout'], { queryParams: { split_id: split_id } });
+  }
+
+  doRefresh(event: RefresherCustomEvent) {
+    this.isRefreshing = true;
+    setTimeout(() => {
+      window.location.reload();
+      this.isRefreshing = false;
+      event.target.complete(); 
+    }, 1000);
   }
 
 }

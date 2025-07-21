@@ -5,6 +5,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="">
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <!-- Quick Start & Empty Workout Button   -->
   <ion-label class="relative top-2 p-4">Quick Start</ion-label>

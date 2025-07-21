@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController, ToastController, RefresherCustomEvent } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { SplitService } from '../services/split.service';
 import {
@@ -456,6 +456,7 @@ export class StartWorkoutPage implements OnInit {
   selectedExerciseIds: Set<string> = new Set();
   defaultDay!: string;
   lastWorkoutSession?: lastWorkoutSession;
+  isRefreshing: boolean = false;
 
   ngOnInit() {
     //fetching split id from query params
@@ -617,5 +618,13 @@ export class StartWorkoutPage implements OnInit {
         },
       });
     }
+  }
+  doRefresh(event: RefresherCustomEvent) {
+    this.isRefreshing = true;
+    setTimeout(() => {
+      window.location.reload();
+      this.isRefreshing = false;
+      event.target.complete(); 
+    }, 1000);
   }
 }

@@ -23,6 +23,7 @@ export class Tab1Page {
   workoutSessions: workoutSession[] = [];
   groupedSessions: any[] = [];
   isRefreshing: boolean = false;
+  isLoading: boolean = true;
 
   exercises = [
     {
@@ -463,6 +464,7 @@ export class Tab1Page {
     this.workoutService.getWorkoutSessions().subscribe({
       next: (data) => {
         this.workoutSessions = data;
+        this.isLoading = false;
         console.log('workoutSessions:', this.workoutSessions);
 
         this.groupedSessions = this.workoutSessions.map((session) => {
@@ -506,6 +508,7 @@ export class Tab1Page {
         console.log('Grouped Sessions:', this.groupedSessions);
       },
       error: (err) => {
+        this.isLoading = false;
         console.error('Error loading exercises:', err);
       },
     });
@@ -545,11 +548,11 @@ export class Tab1Page {
   }
 
   doRefresh(event: RefresherCustomEvent) {
-    console.log('Refresh started');
     this.isRefreshing = true;
-    this.ngOnInit();
-    console.log('Refresh completed!');
-    this.isRefreshing = false;
-    event.target.complete(); // Mark the refresher as complete
+    setTimeout(() => {
+      window.location.reload();
+      this.isRefreshing = false;
+      event.target.complete(); 
+    }, 1000);
   }
 }

@@ -4,8 +4,8 @@
 
 export const environment = {
   production: false,
-  // apiUrl: 'http://localhost:5062'
-  apiUrl: 'https://rets-backend.onrender.com',
+  apiUrl: 'http://localhost:5062'
+  // apiUrl: 'https://rets-backend.onrender.com',
 };
 
 /*

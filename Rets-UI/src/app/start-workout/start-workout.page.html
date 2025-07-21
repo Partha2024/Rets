@@ -13,7 +13,9 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" class="">
-
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
 
   <ion-list class="mt-6">
     <ion-card class="bg-transparent mx-0 mt-0 mb-6" *ngFor="let exercise of selectedExercises">
