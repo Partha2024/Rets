@@ -80,7 +80,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '9',
       exerciseName: 'Pec Deck',
       exerciseImage: 'pec_dec.png',
-      exerciseType: 'Bodyweight Reps',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Chest',
       primaryMuscle: 'Mid Chest (Pectoralis Major)',
     },
@@ -88,7 +88,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '10',
       exerciseName: 'Lower Chest Cable Press',
       exerciseImage: 'lower_chest_cable_press.png',
-      exerciseType: 'Bodyweight Reps',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Chest',
       primaryMuscle: 'Lower Chest (Pectoralis Major)',
     },
@@ -208,7 +208,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '25',
       exerciseName: 'Close Grip Lat Pulldown',
       exerciseImage: 'close-grip-lat-pulldown.png',
-      exerciseType: 'Bodyweight Reps',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Middle Back (Rhomboids)',
     },
@@ -216,7 +216,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '26',
       exerciseName: 'Lat Pulldown',
       exerciseImage: 'lat-pulldown.png',
-      exerciseType: 'Bodyweight Reps',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Upper Back (Trapezius)',
     },
@@ -224,7 +224,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '27',
       exerciseName: 'Reverse Grip Lat Pulldown',
       exerciseImage: 'reverse-grip-lat-pulldown.png',
-      exerciseType: 'Bodyweight Reps',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Middle Back (Rhomboids)',
     },
@@ -232,7 +232,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '28',
       exerciseName: 'Straight Arm Pulldown',
       exerciseImage: 'straight-arm-pulldown.png',
-      exerciseType: 'Bodyweight Reps',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Middle Back (Rhomboids)',
     },
@@ -336,7 +336,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '41',
       exerciseName: 'Goblet Squat',
       exerciseImage: 'goblet-squat.png',
-      exerciseType: 'Bodyweight Timed',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Quads (Quadriceps)',
     },
@@ -344,7 +344,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '42',
       exerciseName: 'Leg Extension',
       exerciseImage: 'leg-extension.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Quads (Quadriceps)',
     },
@@ -352,7 +352,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '43',
       exerciseName: 'Leg Curl',
       exerciseImage: 'seated-leg-curl.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Hamstrings',
     },
@@ -360,7 +360,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '44',
       exerciseName: 'Lying Leg Curl',
       exerciseImage: 'lying-leg-curl.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Hamstrings',
     },
@@ -368,7 +368,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '45',
       exerciseName: 'Machine Standing Calf Raise',
       exerciseImage: 'machine-standing-calf-raise.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Calves (Gastrocnemius)',
     },
@@ -376,7 +376,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '46',
       exerciseName: 'Seated Calf Raise',
       exerciseImage: 'seated-calf-raise.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Calves (Soleus)',
     },
@@ -392,7 +392,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '48',
       exerciseName: 'Cable Overhead Tricep Extension',
       exerciseImage: 'cable-overhead-tricep-extension.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Triceps',
       primaryMuscle: 'Triceps (Long Head)',
     },
@@ -408,7 +408,7 @@ export class CreateSplitPage implements OnInit {
       exerciseId: '50',
       exerciseName: 'Triceps Rope Pushdown',
       exerciseImage: 'tricep_rope_pushdown.png',
-      exerciseType: 'Isolation Weight',
+      exerciseType: 'Weighted Reps',
       muscleGroup: 'Triceps',
       primaryMuscle: 'Triceps (Lateral Head)',
     },
@@ -427,6 +427,7 @@ export class CreateSplitPage implements OnInit {
   selectedExerciseIds: Set<string> = new Set();
   defaultDay!: string;
   headerTitle: string = 'Create New Split';
+  selectionTimestamps: Map<string, number> = new Map();
 
   split: Split = {
     splitName: '',
@@ -458,7 +459,10 @@ export class CreateSplitPage implements OnInit {
             this.splitName = data.splitName;
             this.selectedExerciseIds = new Set(data.exerciseIds);
             this.defaultDay = data.defaultDay;
-            console.log('Loaded Split:', data);
+            console.log('Loaded Existing Split:', data);
+            data.exerciseIds.forEach((id) => {
+              this.selectionTimestamps.set(id, Date.now());
+            })
           },
           error: (err) => {
             console.error('Error loading Split:', err);
@@ -466,35 +470,21 @@ export class CreateSplitPage implements OnInit {
         });
       }
     });
-
-    // fetching exercises from db/HCExercises
-    // this.exerciseService.getExercises().subscribe({
-    //   next: (data) => {
-    //     this.exercises = data;
-    //     console.log('Loaded exercises:', this.exercises);
-    //   },
-    //   error: (err) => {
-    //     console.error('Error loading exercises:', err);
-    //   }
-    // });
     this.exercises = this.HCExercises;
   }
 
-  get filteredExercises() {
-    return this.exercises.filter((e) =>
-      e.exerciseName.toLowerCase().includes(this.searchQuery.toLowerCase())
-    );
-  }
-
+  
   goBack() {
     this.navCtrl.back();
   }
-
+  
   toggleExerciseSelection(id: string) {
     if (this.selectedExerciseIds.has(id)) {
       this.selectedExerciseIds.delete(id);
+      this.selectionTimestamps.delete(id);
     } else {
       this.selectedExerciseIds.add(id);
+      this.selectionTimestamps.set(id, Date.now());
     }
   }
 
@@ -502,51 +492,25 @@ export class CreateSplitPage implements OnInit {
     return this.selectedExerciseIds.has(id);
   }
 
-  async saveSplit() {
-    // const selected = this.exercises.filter(e => this.selectedExerciseIds.has(e.exercise_id));
-    // const newSplit = {
-    //   id: crypto.randomUUID(),
-    //   name: this.splitName,
-    //   exerciseIds: selected.map(e => e.exercise_id),
-    // };
-    // console.log(this.splitName ,selected);
-    // this.splitService.createSplit(this.split).subscribe(res => {
-    //   console.log('Split created:', res);
-    // });
-    // if(!this.splitName) {
-    //   const toast = await this.toastController.create({
-    //     message: 'Please enter a split name',
-    //     duration: 3000,
-    //     color: 'danger',
-    //     position: 'bottom',
-    //     swipeGesture: "vertical"
-    //   });
-    //   await toast.present();
-    // } else if (this.selectedExerciseIds.size === 0) {
-    //   const toast = await this.toastController.create({
-    //     message: 'Select at least one exercise.',
-    //     duration: 3000,
-    //     color: 'danger',
-    //     position: 'bottom',
-    //     swipeGesture: "vertical"
-    //   });
-    //   await toast.present();
-    // } else {
-    //   const existingSplits = JSON.parse(localStorage.getItem('splits') || '[]');
-    //   existingSplits.push(newSplit);
-    //   localStorage.setItem('splits', JSON.stringify(existingSplits));
-    //   console.log('Split saved:', newSplit);
-    //   const toast = await this.toastController.create({
-    //     message: 'Split Created Successfully.',
-    //     duration: 3000,
-    //     color: 'success',
-    //     position: 'bottom',
-    //     swipeGesture: "vertical"
-    //   });
-    //   await toast.present();
-    //   this.navCtrl.back();
-    // }
+  get filteredExercises() {
+    return this.exercises.filter(e => e.exerciseName.toLowerCase().includes(this.searchQuery.toLowerCase())).sort((a, b) => {
+      const aTime = this.selectionTimestamps.get(a.exerciseId);
+      const bTime = this.selectionTimestamps.get(b.exerciseId);
+      if (aTime && bTime) {
+        return aTime-bTime;
+      } else if (aTime) {
+        return -1;
+      } else if (bTime) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+  }
 
+  async saveSplit() {
+
+    // validation checks
     if (!this.splitName) {
       const toast = await this.toastController.create({
         message: 'Please enter a split name',
@@ -580,34 +544,68 @@ export class CreateSplitPage implements OnInit {
       return;
     }
 
+    //payload
     const splitData: Split = {
       splitName: this.splitName,
       defaultDay: this.defaultDay,
       exerciseIds: Array.from(this.selectedExerciseIds),
     };
-    console.log('split data', splitData);
-    this.splitService.createSplit(splitData).subscribe({
-      next: async (res) => {
-        console.log('Split created:', res);
-        const toast = await this.toastController.create({
-          message: 'Split Created Successfully.',
-          duration: 3000,
-          color: 'success',
-          position: 'bottom',
-        });
-        await toast.present();
-        this.navCtrl.back();
-      },
-      error: async (err) => {
-        console.error('Error creating split:', err);
-        const toast = await this.toastController.create({
-          message: 'Failed to create split.',
-          duration: 3000,
-          color: 'danger',
-          position: 'bottom',
-        });
-        await toast.present();
-      },
-    });
+
+    // subscription to create or update split
+    if(this.splitId){
+        this.splitService.updateSplit(this.splitId, splitData).subscribe({
+        next: async (res) => {
+          console.log('Split Updated:', res);
+          const toast = await this.toastController.create({
+            message: 'Split Updated Successfully.',
+            duration: 3000,
+            color: 'success',
+            position: 'bottom',
+          });
+          await toast.present();
+          this.navCtrl.back();
+          setTimeout(() => {
+            window.location.reload();
+          },200)
+        },
+        error: async (err) => {
+          console.error('Error Updating split:', err);
+          const toast = await this.toastController.create({
+            message: 'Failed to Update split.',
+            duration: 3000,
+            color: 'danger',
+            position: 'bottom',
+          });
+          await toast.present();
+        },
+      });
+    }else{
+      this.splitService.createSplit(splitData).subscribe({
+        next: async (res) => {
+          console.log('Split created:', res);
+          const toast = await this.toastController.create({
+            message: 'Split Created Successfully.',
+            duration: 3000,
+            color: 'success',
+            position: 'bottom',
+          });
+          await toast.present();
+          this.navCtrl.back();
+          setTimeout(() => {
+            window.location.reload();
+          },200)
+        },
+        error: async (err) => {
+          console.error('Error creating split:', err);
+          const toast = await this.toastController.create({
+            message: 'Failed to create split.',
+            duration: 3000,
+            color: 'danger',
+            position: 'bottom',
+          });
+          await toast.present();
+        },
+      });
+    }
   }
 }

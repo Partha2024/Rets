@@ -4,84 +4,86 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-  <ion-refresher-content></ion-refresher-content>
-</ion-refresher>
-
 <ion-content *ngIf="workoutSessions.length > 0; else noSessions">
-  <ion-list [inset]="true" *ngFor="let session of workoutSessions; let i = index">
-    <!-- Header - Split Name & Menu Icon -->
-    <ion-item lines="full" class="p-0">
-      <ion-label class="p-0 m-0 mt-2">
-        <h2 class="text-xl"><strong>{{ session.split.splitName }}</strong></h2>
-        <ion-text class="text-sm/7 relative top-[-2px] line" color="medium"
-          >{{ session.startTime | date: 'dd MMMM yy' }}</ion-text
-        >
-      </ion-label>
-      <ion-icon
-        [id]="'popover-trigger-' + i"
-        name="ellipsis-vertical"
-        class="more-icon relative right-[-5px] top-[-5px] text-[20px]"
-      ></ion-icon>
-      <ion-popover
-        [trigger]="'popover-trigger-' + i"
-        triggerAction="click"
-        side="bottom"
-        alignment="end"
-      >
-        <ng-template>
-          <ion-content class="">
-            <ion-item button>
-              <ion-label id="delteSplit" color="danger">Delete</ion-label>
-              <ion-alert
-                trigger="delteSplit"
-                header="Are you sure ?"
-                [buttons]="alertButtons"
-                (didDismiss)="handleDeleteClick($event, session.sessionId)"
-              ></ion-alert>
-            </ion-item>
-          </ion-content>
-        </ng-template>
-      </ion-popover>
-    </ion-item>
-
-    <!-- Volumt & Sets -->
-    <ion-item class="top-[-8px]" lines="inset">
-      <div class="w-[95px]">
-        <ion-input
-          [readonly]="true"
-          labelPlacement="stacked"
-          [value]="groupedSessions[i].totalVolume+' Kg'"
-        >
-          <div slot="label"><ion-text color="medium">Volume</ion-text></div>
-        </ion-input>
-      </div>
-      <div class="w-[95px]">
-        <ion-input
-          [readonly]="true"
-          labelPlacement="stacked"
-          [value]="groupedSessions[i].totalSets"
-        >
-          <div slot="label"><ion-text color="medium">Sets</ion-text></div>
-        </ion-input>
-      </div>
-    </ion-item>
-
-    <!-- Exercises and number of Sets -->
-    <ion-item-group
-      *ngFor="let session of groupedSessions[i].exercises"
-      class="pb-2"
-    >
-      <ion-item [button]="true" detail="false" lines="none" class="mb-2">
-        <ion-thumbnail slot="start" class="circle-thumb">
-          <img [src]="'./assets/exercises/' + session.Exercise_image " alt="" />
-        </ion-thumbnail>
-        <ion-label>
-          {{ session.numberOfSets }} Sets of {{ session.Exercise_name }}
+  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+    <ion-refresher-content></ion-refresher-content>
+  </ion-refresher>
+  
+  <ion-card class="m-0 rounded-none">
+    <ion-list [inset]="true" *ngFor="let session of workoutSessions; let i = index">
+      <!-- Header - Split Name & Menu Icon -->
+      <ion-item lines="full" class="p-0">
+        <ion-label class="p-0 m-0 mt-2">
+          <h2 class="text-xl"><strong>{{ session.split.splitName }}</strong></h2>
+          <ion-text class="text-sm/7 relative top-[-2px] line" color="medium"
+            >{{ session.startTime | date: 'dd MMMM yy' }}</ion-text
+          >
         </ion-label>
+        <ion-icon
+          [id]="'popover-trigger-' + i"
+          name="ellipsis-vertical"
+          class="more-icon relative right-[-5px] top-[-5px] text-[20px]"
+        ></ion-icon>
+        <ion-popover
+          [trigger]="'popover-trigger-' + i"
+          triggerAction="click"
+          side="bottom"
+          alignment="end"
+        >
+          <ng-template>
+            <ion-content class="">
+              <ion-item button>
+                <ion-label id="delteSplit" color="danger">Delete</ion-label>
+                <ion-alert
+                  trigger="delteSplit"
+                  header="Are you sure ?"
+                  [buttons]="alertButtons"
+                  (didDismiss)="handleDeleteClick($event, session.sessionId)"
+                ></ion-alert>
+              </ion-item>
+            </ion-content>
+          </ng-template>
+        </ion-popover>
       </ion-item>
-    </ion-item-group>
-  </ion-list>
+
+      <!-- Volumt & Sets -->
+      <ion-item class="top-[-8px]" lines="inset">
+        <div class="w-[95px]">
+          <ion-input
+            [readonly]="true"
+            labelPlacement="stacked"
+            [value]="groupedSessions[i].totalVolume+' Kg'"
+          >
+            <div slot="label"><ion-text color="medium">Volume</ion-text></div>
+          </ion-input>
+        </div>
+        <div class="w-[95px]">
+          <ion-input
+            [readonly]="true"
+            labelPlacement="stacked"
+            [value]="groupedSessions[i].totalSets"
+          >
+            <div slot="label"><ion-text color="medium">Sets</ion-text></div>
+          </ion-input>
+        </div>
+      </ion-item>
+
+      <!-- Exercises and number of Sets -->
+      <ion-item-group
+        *ngFor="let session of groupedSessions[i].exercises"
+        class="pb-2"
+      >
+        <ion-item [button]="true" detail="false" lines="none" class="mb-2">
+          <ion-thumbnail slot="start" class="circle-thumb">
+            <img [src]="'./assets/exercises/' + session.Exercise_image " alt="" />
+          </ion-thumbnail>
+          <ion-label>
+            {{ session.numberOfSets }} Sets of {{ session.Exercise_name }}
+          </ion-label>
+        </ion-item>
+      </ion-item-group>
+    </ion-list>
+  </ion-card>
 </ion-content>
 <ng-template #noSessions>
   <div class="ion-padding text-center">

@@ -6,6 +6,7 @@ import {
   WorkoutService,
   lastWorkoutSession,
 } from '../services/workoutSession.service';
+import type { OverlayEventDetail } from '@ionic/core';
 
 @Component({
   selector: 'app-start-workout',
@@ -14,6 +15,30 @@ import {
   standalone: false,
 })
 export class StartWorkoutPage implements OnInit {
+
+    public actionSheetButtons = [
+    {
+      text: 'Delete',
+      role: 'destructive',
+      data: {
+        action: 'delete',
+      },
+    },
+    {
+      text: 'Replace',
+      data: {
+        action: 'replace',
+      },
+    },
+    {
+      text: 'Cancel',
+      role: 'cancel',
+      data: {
+        action: 'cancel',
+      },
+    },
+  ];
+
   setInputs: {
     [exerciseId: string]: {
       weight?: number;
@@ -109,7 +134,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '9',
       Exercise_name: 'Pec Deck',
       Exercise_image: 'pec_dec.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Chest',
       primaryMuscle: 'Mid Chest (Pectoralis Major)',
     },
@@ -237,7 +262,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '25',
       Exercise_name: 'Close Grip Lat Pulldown',
       Exercise_image: 'close-grip-lat-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Middle Back (Rhomboids)',
     },
@@ -245,7 +270,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '26',
       Exercise_name: 'Lat Pulldown',
       Exercise_image: 'lat-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Upper Back (Trapezius)',
     },
@@ -253,7 +278,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '27',
       Exercise_name: 'Reverse Grip Lat Pulldown',
       Exercise_image: 'reverse-grip-lat-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Middle Back (Rhomboids)',
     },
@@ -261,7 +286,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '28',
       Exercise_name: 'Straight Arm Pulldown',
       Exercise_image: 'straight-arm-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Back',
       primaryMuscle: 'Middle Back (Rhomboids)',
     },
@@ -373,7 +398,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '42',
       Exercise_name: 'Leg Extension',
       Exercise_image: 'leg-extension.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Quads (Quadriceps)',
     },
@@ -381,7 +406,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '43',
       Exercise_name: 'Leg Curl',
       Exercise_image: 'seated-leg-curl.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Hamstrings',
     },
@@ -389,7 +414,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '44',
       Exercise_name: 'Lying Leg Curl',
       Exercise_image: 'lying-leg-curl.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Hamstrings',
     },
@@ -397,7 +422,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '45',
       Exercise_name: 'Machine Standing Calf Raise',
       Exercise_image: 'machine-standing-calf-raise.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Calves (Gastrocnemius)',
     },
@@ -405,7 +430,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '46',
       Exercise_name: 'Seated Calf Raise',
       Exercise_image: 'seated-calf-raise.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Legs',
       primaryMuscle: 'Calves (Soleus)',
     },
@@ -421,7 +446,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '48',
       Exercise_name: 'Cable Overhead Tricep Extension',
       Exercise_image: 'cable-overhead-tricep-extension.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Triceps',
       primaryMuscle: 'Triceps (Long Head)',
     },
@@ -437,7 +462,7 @@ export class StartWorkoutPage implements OnInit {
       Exercise_id: '50',
       Exercise_name: 'Triceps Rope Pushdown',
       Exercise_image: 'tricep_rope_pushdown.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       muscleGroup: 'Triceps',
       primaryMuscle: 'Triceps (Lateral Head)',
     },
@@ -488,6 +513,7 @@ export class StartWorkoutPage implements OnInit {
         //fetching last workout session data for the split
         this.workoutService.getLastSessionBySplitId(this.splitId).subscribe({
           next: (session) => {
+            //is last session data is null then create a new empty session data
             if (session == null) {
               console.log("selectedExercises", this.selectedExercises);
               this.groupedSessions = this.selectedExercises.map((exercise) => ({
@@ -505,10 +531,7 @@ export class StartWorkoutPage implements OnInit {
             } else {
               this.lastWorkoutSession = session;
               console.log('lastWorkoutSession', session);
-              const exerciseMap = new Map<
-                string,
-                { exerciseId: string; setData: any[] }
-              >();
+              const exerciseMap = new Map<string,{ exerciseId: string; setData: any[] }>();
               session.exerciseLogs.forEach((log) => {
                 const id = log.exerciseId;
                 const existing = exerciseMap.get(id);
@@ -538,11 +561,20 @@ export class StartWorkoutPage implements OnInit {
                   })
                 );
               });
-              console.log(
-                'Last Session Data:',
-                this.lastSessionData,
-                typeof this.lastSessionData
-              );
+
+              // Iterate through each exerciseId in selectedExerciseIds
+              this.selectedExerciseIds.forEach((exId) => {
+                const groupedSets = this.groupedSessions.filter((session) => session.exerciseId === exId);
+                const setInputsForExercise: { weight?: number; reps?: number; time?: string; }[] = [];
+                groupedSets.forEach((session) => {
+                  session.setData.forEach(() => {
+                    setInputsForExercise.push({ weight: undefined, reps: undefined, time: undefined });
+                  });
+                });
+                this.setInputs[exId] = setInputsForExercise;
+              });
+
+              console.log('Last Session Data:',this.lastSessionData,typeof this.lastSessionData);
             }
           },
           error: (err) => {
@@ -551,6 +583,13 @@ export class StartWorkoutPage implements OnInit {
         });
       }
     });
+  }
+
+  limitLength(event: any, maxLength: number) {
+    const input = event.target;
+    if (input.value && input.value.length > maxLength) {
+      input.value = input.value.slice(0, maxLength);
+    }
   }
 
   get selectedExercises() {
@@ -586,14 +625,40 @@ export class StartWorkoutPage implements OnInit {
       });
     });
 
-    let repsNull = false;
-    logs.every((log) => {
-      if (log.Reps != null || log.Weight != null) {
-        repsNull = true;
-        return;
+
+    //invalid set validation
+
+    // let isSessionValid = false;
+    // logs.forEach((log) => {
+    //   let logExerciseType = this.exercises.find(ex => ex.Exercise_id === log.ExerciseId)?.Exercise_type;
+    //   if (logExerciseType == "Weighted Reps" && (log.Reps == null || log.Weight == null)) {
+    //     return;
+    //   } else if (logExerciseType == "Bodyweight Reps" && log.Reps == null) {
+    //     return;
+    //   } else if (logExerciseType == "Bodyweight Timed" && log.Time == null) {
+    //     return;
+    //   }
+    // });
+
+    let isSessionValid = logs.every((log) => {
+      let logExerciseType = this.exercises.find(ex => ex.Exercise_id === log.ExerciseId)?.Exercise_type;
+
+      if (logExerciseType === "Weighted Reps") {
+        // return log.Reps != null && log.Weight != null;
+        return log.Reps > 0 && log.Weight > 0;
+      } else if (logExerciseType === "Bodyweight Reps") {
+        return log.Reps != null;
+      } else if (logExerciseType === "Bodyweight Timed") {
+        return log.Time != null;
       }
+
+      // If type is unknown, assume invalid
+      return false;
     });
-    if (!repsNull) {
+
+    console.log("isSessionValid", isSessionValid);
+
+    if (!isSessionValid) {
       const toast = await this.toastController.create({
         message: 'Your workout has no valid sets',
         duration: 3000,
@@ -619,6 +684,7 @@ export class StartWorkoutPage implements OnInit {
       });
     }
   }
+
   doRefresh(event: RefresherCustomEvent) {
     this.isRefreshing = true;
     setTimeout(() => {
@@ -626,5 +692,26 @@ export class StartWorkoutPage implements OnInit {
       this.isRefreshing = false;
       event.target.complete(); 
     }, 1000);
+  }
+
+  addMoreSets(exerciseId: string) {
+    console.log("Add More Set Clicked : ", exerciseId);
+    var emptySet: any = { weight: 0, reps: 0, time: "0" };
+    this.lastSessionData[exerciseId].push({...emptySet});
+    this.setInputs[exerciseId].push({ ...emptySet });
+    console.log("this.lastSessionData after adding new set : ",this.lastSessionData);
+  }
+
+  deleteSet(setNumber: number, exerciseId: string) {
+    console.log("delete set : ",exerciseId, setNumber);
+    this.lastSessionData[exerciseId].splice(setNumber, 1);
+    this.setInputs[exerciseId].splice(setNumber, 1);
+  }
+
+  logResult(event: CustomEvent<OverlayEventDetail>, exerciseId:string) {
+    console.log(JSON.stringify(event.detail, null, 2));
+    console.log("exerciseId", exerciseId);
+    console.log("selectedExerciseIds", this.selectedExerciseIds);
+    this.selectedExerciseIds.delete(exerciseId);
   }
 }

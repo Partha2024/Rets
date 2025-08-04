@@ -20,7 +20,7 @@ namespace Rets_API.Controllers
       _cache = cache;
     }
 
-    [HttpPost]
+    [HttpPost("create")]
     public async Task<IActionResult> CreateSplit([FromBody] SplitDto splitDto)
     {
       var split = new Split
@@ -43,7 +43,7 @@ namespace Rets_API.Controllers
         DefaultDay = split.DefaultDay,
         ExerciseIds = split.SplitExercises.Select(se => se.ExerciseId).ToList()
       };
-
+      _cache.Remove("Splits");
       return Ok(response);
     }
 
@@ -103,7 +103,7 @@ namespace Rets_API.Controllers
         SplitName = split.SplitName,
         DefaultDay = split.DefaultDay,
         ExerciseIds = split.SplitExercises.Select(se => se.ExerciseId).ToList()
-      }); 
+      });
 
       _cache.Set("Splits", dtos, TimeSpan.FromMinutes(10));
       Console.WriteLine("[Splits] Cached result ✅");
@@ -111,7 +111,7 @@ namespace Rets_API.Controllers
       return Ok(dtos);
     }
 
-    [HttpDelete("{id}")]
+    [HttpDelete("delete/{id}")]
     public async Task<IActionResult> DeleteSplit(int id)
     {
       try
@@ -139,6 +139,46 @@ namespace Rets_API.Controllers
         Console.WriteLine($"DeleteSplit exception: {ex.Message}");
         return StatusCode(500, new { error = ex.Message });
       }
+    }
+
+    [HttpPost("update/{split_id}")]
+    public async Task<IActionResult> UpdateSplit([FromBody] SplitDto splitDto, int split_id)
+    {
+      var existingSplit = await _context.Splits
+          .Include(s => s.SplitExercises)
+          .FirstOrDefaultAsync(s => s.SplitId == split_id);
+
+      if (existingSplit == null)
+      {
+        return NotFound($"Split with ID {split_id} not found.");
+      }
+
+      // Update name and default day
+      existingSplit.SplitName = splitDto.SplitName;
+      existingSplit.DefaultDay = splitDto.DefaultDay;
+
+      // Remove old exercises
+      _context.SplitExercises.RemoveRange(existingSplit.SplitExercises);
+
+      // Add new exercises
+      existingSplit.SplitExercises = splitDto.ExerciseIds.Select(eid => new SplitExercise
+      {
+        SplitId = split_id,
+        ExerciseId = eid
+      }).ToList();
+
+      await _context.SaveChangesAsync();
+      _cache.Remove("Splits");
+
+      // Prepare response
+      var response = new SplitDto
+      {
+        SplitId = existingSplit.SplitId,
+        SplitName = existingSplit.SplitName,
+        DefaultDay = existingSplit.DefaultDay,
+        ExerciseIds = existingSplit.SplitExercises.Select(se => se.ExerciseId).ToList()
+      };
+      return Ok(response);
     }
   }
 }

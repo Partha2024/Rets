@@ -17,7 +17,7 @@ namespace Rets_API.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.5")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -61,7 +61,6 @@ namespace Rets_API.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("LogId"));
 
                     b.Property<string>("ExerciseId")
-                        .IsRequired()
                         .HasColumnType("text");
 
                     b.Property<int?>("Reps")
@@ -123,7 +122,7 @@ namespace Rets_API.Migrations
 
                     b.HasIndex("ExerciseId");
 
-                    b.ToTable("SplitExercise");
+                    b.ToTable("SplitExercises");
                 });
 
             modelBuilder.Entity("Rets_API.Models.WorkoutSession", b =>
@@ -151,9 +150,7 @@ namespace Rets_API.Migrations
                 {
                     b.HasOne("Rets_API.Models.Exercise", "Exercise")
                         .WithMany()
-                        .HasForeignKey("ExerciseId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("ExerciseId");
 
                     b.HasOne("Rets_API.Models.WorkoutSession", "WorkoutSession")
                         .WithMany("ExerciseLogs")

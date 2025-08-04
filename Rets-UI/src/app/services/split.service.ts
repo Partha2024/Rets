@@ -21,7 +21,7 @@ export class SplitService {
 
   // POST: Create a new split
   createSplit(split: Split): Observable<Split> {
-    return this.http.post<Split>(this.apiUrl, split);
+    return this.http.post<Split>(`${this.apiUrl}/create`, split);
   }
 
   // GET: Fetch a split by ID 
@@ -36,7 +36,11 @@ export class SplitService {
 
   // DELETE: Delete a split by ID
   deleteSplit(split_id: number): Observable<any> {
-    return this.http.delete(`${this.apiUrl}/${split_id}`);
+    return this.http.delete(`${this.apiUrl}/delete/${split_id}`);
   }
 
+  // POST: Create a new split
+  updateSplit(split_id: number, split: Split): Observable<Split> {
+    return this.http.post<Split>(`${this.apiUrl}/update/${split_id}`, split);
+  }
 }

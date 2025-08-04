@@ -2,7 +2,7 @@ import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
 import type { OverlayEventDetail } from '@ionic/core';
-import { PopoverController, RefresherCustomEvent } from '@ionic/angular';
+import { PopoverController, RefresherCustomEvent, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
@@ -20,7 +20,8 @@ export class Tab2Page {
   constructor(
     private router: Router,
     private splitService: SplitService,
-    private popoverController: PopoverController
+    private popoverController: PopoverController,
+    private toastController: ToastController
   ) {}
 
   loadSplits(): void {
@@ -76,9 +77,15 @@ export class Tab2Page {
     if(event.detail.role === 'confirm' && split_id !== undefined) {
       this.splitService.deleteSplit(split_id).subscribe({
         next: () => {
-          console.log('Split deleted successfully');
-          // this.splits = this.splits.filter(split => split.split_id !== split_id);
-          // localStorage.setItem('splits', JSON.stringify(this.splits));
+          setTimeout(async () => {
+            const toast = await this.toastController.create({
+              message: 'Split deleted successfully.',
+              duration: 3000,
+              color: 'success',
+              position: 'bottom',
+            });
+            await toast.present();
+          }, 1000);
           this.loadSplits();
         },
         error: (err: any) => {

@@ -94,7 +94,7 @@ export class Tab1Page {
       Exercise_id: '9',
       Exercise_name: 'Pec Deck',
       Exercise_image: 'pec_dec.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Chest',
       Primary_muscle: 'Mid Chest (Pectoralis Major)',
     },
@@ -102,7 +102,7 @@ export class Tab1Page {
       Exercise_id: '10',
       Exercise_name: 'Lower Chest Cable Press',
       Exercise_image: 'lower_chest_cable_press.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Chest',
       Primary_muscle: 'Lower Chest (Pectoralis Major)',
     },
@@ -222,7 +222,7 @@ export class Tab1Page {
       Exercise_id: '25',
       Exercise_name: 'Close Grip Lat Pulldown',
       Exercise_image: 'close-grip-lat-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Back',
       Primary_muscle: 'Middle Back (Rhomboids)',
     },
@@ -230,7 +230,7 @@ export class Tab1Page {
       Exercise_id: '26',
       Exercise_name: 'Lat Pulldown',
       Exercise_image: 'lat-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Back',
       Primary_muscle: 'Upper Back (Trapezius)',
     },
@@ -238,7 +238,7 @@ export class Tab1Page {
       Exercise_id: '27',
       Exercise_name: 'Reverse Grip Lat Pulldown',
       Exercise_image: 'reverse-grip-lat-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Back',
       Primary_muscle: 'Middle Back (Rhomboids)',
     },
@@ -246,7 +246,7 @@ export class Tab1Page {
       Exercise_id: '28',
       Exercise_name: 'Straight Arm Pulldown',
       Exercise_image: 'straight-arm-pulldown.png',
-      Exercise_type: 'Bodyweight Reps',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Back',
       Primary_muscle: 'Middle Back (Rhomboids)',
     },
@@ -350,7 +350,7 @@ export class Tab1Page {
       Exercise_id: '41',
       Exercise_name: 'Goblet Squat',
       Exercise_image: 'goblet-squat.png',
-      Exercise_type: 'Bodyweight Timed',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Legs',
       Primary_muscle: 'Quads (Quadriceps)',
     },
@@ -358,7 +358,7 @@ export class Tab1Page {
       Exercise_id: '42',
       Exercise_name: 'Leg Extension',
       Exercise_image: 'leg-extension.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Legs',
       Primary_muscle: 'Quads (Quadriceps)',
     },
@@ -366,7 +366,7 @@ export class Tab1Page {
       Exercise_id: '43',
       Exercise_name: 'Leg Curl',
       Exercise_image: 'seated-leg-curl.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Legs',
       Primary_muscle: 'Hamstrings',
     },
@@ -374,7 +374,7 @@ export class Tab1Page {
       Exercise_id: '44',
       Exercise_name: 'Lying Leg Curl',
       Exercise_image: 'lying-leg-curl.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Legs',
       Primary_muscle: 'Hamstrings',
     },
@@ -382,7 +382,7 @@ export class Tab1Page {
       Exercise_id: '45',
       Exercise_name: 'Machine Standing Calf Raise',
       Exercise_image: 'machine-standing-calf-raise.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Legs',
       Primary_muscle: 'Calves (Gastrocnemius)',
     },
@@ -390,7 +390,7 @@ export class Tab1Page {
       Exercise_id: '46',
       Exercise_name: 'Seated Calf Raise',
       Exercise_image: 'seated-calf-raise.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Legs',
       Primary_muscle: 'Calves (Soleus)',
     },
@@ -406,7 +406,7 @@ export class Tab1Page {
       Exercise_id: '48',
       Exercise_name: 'Cable Overhead Tricep Extension',
       Exercise_image: 'cable-overhead-tricep-extension.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Triceps',
       Primary_muscle: 'Triceps (Long Head)',
     },
@@ -422,7 +422,7 @@ export class Tab1Page {
       Exercise_id: '50',
       Exercise_name: 'Triceps Rope Pushdown',
       Exercise_image: 'tricep_rope_pushdown.png',
-      Exercise_type: 'Isolation Weight',
+      Exercise_type: 'Weighted Reps',
       Muscle_group: 'Triceps',
       Primary_muscle: 'Triceps (Lateral Head)',
     },
@@ -465,7 +465,7 @@ export class Tab1Page {
       next: (data) => {
         this.workoutSessions = data;
         this.isLoading = false;
-        console.log('workoutSessions:', this.workoutSessions);
+        console.log('Exercise Logs:', this.workoutSessions);
 
         this.groupedSessions = this.workoutSessions.map((session) => {
           const exerciseMap = new Map<string, { count: number }>();
@@ -498,12 +498,7 @@ export class Tab1Page {
               totalVolume += log.reps * log.weight;
             }
           });
-          return {
-            sessionId: session.sessionId,
-            exercises,
-            totalVolume,
-            totalSets,
-          };
+          return { sessionId: session.sessionId, exercises, totalVolume, totalSets};
         });
         console.log('Grouped Sessions:', this.groupedSessions);
       },
@@ -514,10 +509,7 @@ export class Tab1Page {
     });
   }
 
-  async handleDeleteClick(
-    event: CustomEvent<OverlayEventDetail>,
-    sessionId: number | undefined
-  ) {
+  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, sessionId: number | undefined) {
     await this.popoverController.dismiss();
     console.log(
       `Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`

@@ -12,6 +12,7 @@ namespace Rets_API.Data
     public DbSet<Split> Splits { get; set; }
     public DbSet<WorkoutSession> WorkoutSessions { get; set; }
     public DbSet<ExerciseLog> ExerciseLogs { get; set; }
+    public DbSet<SplitExercise> SplitExercises { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -29,7 +30,7 @@ namespace Rets_API.Data
         .HasOne(se => se.Exercise)
         .WithMany(e => e.SplitExercises)
         .HasForeignKey(se => se.ExerciseId);
-        
+
       // One-to-Many Split ↔ WorkoutSession
       modelBuilder.Entity<WorkoutSession>()
           .HasOne(ws => ws.Split)
