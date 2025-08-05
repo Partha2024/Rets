@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { NavController, ToastController, RefresherCustomEvent } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { SplitService } from '../services/split.service';
@@ -7,6 +7,7 @@ import {
   lastWorkoutSession,
 } from '../services/workoutSession.service';
 import type { OverlayEventDetail } from '@ionic/core';
+import { IonModal } from '@ionic/angular';
 
 @Component({
   selector: 'app-start-workout',
@@ -16,7 +17,9 @@ import type { OverlayEventDetail } from '@ionic/core';
 })
 export class StartWorkoutPage implements OnInit {
 
-    public actionSheetButtons = [
+  @ViewChild(IonModal) modal!: IonModal;
+
+  public actionSheetButtons = [
     {
       text: 'Delete',
       role: 'destructive',
@@ -26,6 +29,7 @@ export class StartWorkoutPage implements OnInit {
     },
     {
       text: 'Replace',
+      role: 'replace',
       data: {
         action: 'replace',
       },
@@ -482,6 +486,8 @@ export class StartWorkoutPage implements OnInit {
   defaultDay!: string;
   lastWorkoutSession?: lastWorkoutSession;
   isRefreshing: boolean = false;
+  searchQuery = '';
+  selectionTimestamps: Map<string, number> = new Map();
 
   ngOnInit() {
     //fetching split id from query params
@@ -502,6 +508,7 @@ export class StartWorkoutPage implements OnInit {
                 { weight: undefined, reps: undefined, time: undefined },
                 { weight: undefined, reps: undefined, time: undefined },
               ];
+              this.selectionTimestamps.set(exId, Date.now());
             });
             console.log('Loaded Split:', data);
           },
@@ -625,21 +632,6 @@ export class StartWorkoutPage implements OnInit {
       });
     });
 
-
-    //invalid set validation
-
-    // let isSessionValid = false;
-    // logs.forEach((log) => {
-    //   let logExerciseType = this.exercises.find(ex => ex.Exercise_id === log.ExerciseId)?.Exercise_type;
-    //   if (logExerciseType == "Weighted Reps" && (log.Reps == null || log.Weight == null)) {
-    //     return;
-    //   } else if (logExerciseType == "Bodyweight Reps" && log.Reps == null) {
-    //     return;
-    //   } else if (logExerciseType == "Bodyweight Timed" && log.Time == null) {
-    //     return;
-    //   }
-    // });
-
     let isSessionValid = logs.every((log) => {
       let logExerciseType = this.exercises.find(ex => ex.Exercise_id === log.ExerciseId)?.Exercise_type;
 
@@ -697,6 +689,10 @@ export class StartWorkoutPage implements OnInit {
   addMoreSets(exerciseId: string) {
     console.log("Add More Set Clicked : ", exerciseId);
     var emptySet: any = { weight: 0, reps: 0, time: "0" };
+    if (!this.lastSessionData[exerciseId]) {
+      this.lastSessionData[exerciseId] = [];
+      this.setInputs[exerciseId] = [];
+    }
     this.lastSessionData[exerciseId].push({...emptySet});
     this.setInputs[exerciseId].push({ ...emptySet });
     console.log("this.lastSessionData after adding new set : ",this.lastSessionData);
@@ -708,10 +704,81 @@ export class StartWorkoutPage implements OnInit {
     this.setInputs[exerciseId].splice(setNumber, 1);
   }
 
-  logResult(event: CustomEvent<OverlayEventDetail>, exerciseId:string) {
-    console.log(JSON.stringify(event.detail, null, 2));
-    console.log("exerciseId", exerciseId);
-    console.log("selectedExerciseIds", this.selectedExerciseIds);
-    this.selectedExerciseIds.delete(exerciseId);
+  editActionHandler(event: CustomEvent<OverlayEventDetail>, exerciseId:string) {
+    if(event.detail.role === 'destructive') {
+      this.selectedExerciseIds.delete(exerciseId);
+      this.selectionTimestamps.delete(exerciseId);
+    } else if (event.detail.role === 'replace') {
+      console.log("replace clicked");
+    }else{
+    }
   }
+
+  addExercise(){
+    console.log("Add Exercise Clicked");
+  }
+
+  cancel() {
+    this.modal.dismiss(null, 'cancel');
+  }
+
+  confirm() {
+    this.modal.dismiss(null, 'confirm');
+    console.log("Confirm clicked");
+  }
+
+  onWillDismiss(event: CustomEvent<OverlayEventDetail>) {
+    if (event.detail.role === 'confirm') {
+      // this.message = `Hello, ${event.detail.data}!`;
+    }
+  }
+
+  toggleExerciseSelection(id: string) {
+    console.log("toggle : ", this.selectedExerciseIds)
+    if (this.selectedExerciseIds.has(id)) {
+      this.selectedExerciseIds.delete(id);
+      this.selectionTimestamps.delete(id);
+    } else {
+      if(this.lastSessionData[id]) {
+        this.setInputs[id] = [];
+        this.lastSessionData[id].forEach((set) => {
+          var tempSet: any = { weight: set.weight, reps: set.reps, time: set.time };
+          this.setInputs[id].push({ ...tempSet });
+        })
+      }else{
+        var emptySet: any = { weight: 0, reps: 0, time: "0" };
+        if (!this.lastSessionData[id]) {
+          this.lastSessionData[id] = [];
+          this.setInputs[id] = [];
+        }
+        Array.from({ length: 3 }).forEach((_, i) => {
+          this.lastSessionData[id].push({...emptySet});
+          this.setInputs[id].push({ ...emptySet });
+        });
+      }
+      this.selectedExerciseIds.add(id);
+      this.selectionTimestamps.set(id, Date.now());
+    }
+  }
+
+  isSelected(id: string): boolean {
+    return this.selectedExerciseIds.has(id);
+  }
+
+  get filteredExercises() {
+    return this.exercises.filter(e => e.Exercise_name.toLowerCase().includes(this.searchQuery.toLowerCase())).sort((a, b) => {
+      const aTime = this.selectionTimestamps.get(a.Exercise_id);
+      const bTime = this.selectionTimestamps.get(b.Exercise_id);
+      if (aTime && bTime) {
+        return aTime-bTime;
+      } else if (aTime) {
+        return -1;
+      } else if (bTime) {
+        return 1;
+      } else {
+        return 0;
+      }
+    });
+  }
+
 }

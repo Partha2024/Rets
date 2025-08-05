@@ -34,7 +34,7 @@
           <ion-action-sheet
             [trigger]="'open-action-sheet' + j"
             [buttons]="actionSheetButtons"
-            (didDismiss)="logResult($event, exercise.Exercise_id)"
+            (didDismiss)="editActionHandler($event, exercise.Exercise_id)"
           ></ion-action-sheet>
           <!-- <ion-popover [trigger]="'popover-trigger-'" triggerAction="click" side="bottom" alignment="end">
             <ng-template>
@@ -122,13 +122,66 @@
         </ion-button>
       </ion-card-content>
     </ion-card>
+
+    <!-- Add Exercise and Discard Workout Buttons -->
     <div class="flex justify-evenly items-center mb-4">
-      <ion-button expand="block" size="small" class="m-y h-[45px] w-[170px] text-base font-semibold" fill="outline">
+      <!-- add exercise button -->
+      <ion-button id="open-modal" expand="block" size="small" class="m-y h-[45px] w-[170px] text-base font-semibold" fill="outline" (click)="addExercise()">
         <ion-icon class="mr-2" name="add-outline"></ion-icon> Add Exercise
       </ion-button>
+      <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)">
+        <ng-template>
+          <ion-header>
+            <ion-toolbar>
+              <ion-buttons slot="start">
+                <ion-button (click)="cancel()">Cancel</ion-button>
+              </ion-buttons>
+              <ion-title>Add Exercise</ion-title>
+              <ion-buttons slot="end">
+                <ion-button (click)="confirm()" [strong]="true">Confirm</ion-button>
+              </ion-buttons>
+            </ion-toolbar>
+          </ion-header>
+          <ion-content [fullscreen]="true" class="">            
+            <ion-searchbar
+              [(ngModel)]="searchQuery"
+              placeholder="Search exercises"
+              debounce="200">
+            </ion-searchbar>
+
+            <ion-list *ngIf="exercises.length > 0; else loading" >
+              <ion-card *ngFor="let exercise of filteredExercises" class="mx-1">
+                <ion-item lines="none" class="">
+                  <ion-thumbnail slot="start" class="circle-thumb"               >
+                    <img [src]="'./assets/exercises/' + exercise.Exercise_image" alt="{{ exercise.Exercise_name }}" />
+                  </ion-thumbnail>
+                  <ion-label>
+                    <h2>{{ exercise.Exercise_name }}</h2>
+                    <p>{{ exercise.muscleGroup }}</p>
+                  </ion-label>
+                  <ion-checkbox
+                    slot="end"
+                    [checked]="isSelected(exercise.Exercise_id)"
+                    (ionChange)="toggleExerciseSelection(exercise.Exercise_id)">
+                  </ion-checkbox>
+                </ion-item>
+              </ion-card>
+            </ion-list>
+            <ng-template #loading>
+              <div class="ion-padding text-center">
+                <ion-spinner name="dots" class=""></ion-spinner>
+              </div>
+            </ng-template>
+
+            <!-- <ion-button expand="block" (click)="addExercise()">Add Exercise</ion-button> -->
+            <!-- <ion-button expand="block" color="success" (click)="saveSplit()" class="mx-3">Save Split</ion-button>   -->
+
+          </ion-content>
+        </ng-template>
+      </ion-modal>
+      <!-- discard workout button -->
       <ion-button expand="block" size="small" class="m-y h-[45px] w-[170px] text-base" color="danger" fill="outline">
-        <!-- <ion-icon class="mr-2" name="trash-outline"></ion-icon> -->
-        Discard Workout
+        <ion-icon class="mr-2" name="trash-outline"></ion-icon> Discard
       </ion-button>
     </div>
   </ion-list>
