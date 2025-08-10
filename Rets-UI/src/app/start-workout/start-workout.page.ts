@@ -7,7 +7,8 @@ import {
   lastWorkoutSession,
 } from '../services/workoutSession.service';
 import type { OverlayEventDetail } from '@ionic/core';
-import { IonModal } from '@ionic/angular';
+import { IonModal, ModalController } from '@ionic/angular';
+import { ReplaceExerciseModal } from './components/replace-exercise.component';
 
 @Component({
   selector: 'app-start-workout',
@@ -18,30 +19,6 @@ import { IonModal } from '@ionic/angular';
 export class StartWorkoutPage implements OnInit {
 
   @ViewChild(IonModal) modal!: IonModal;
-
-  public actionSheetButtons = [
-    {
-      text: 'Delete',
-      role: 'destructive',
-      data: {
-        action: 'delete',
-      },
-    },
-    {
-      text: 'Replace',
-      role: 'replace',
-      data: {
-        action: 'replace',
-      },
-    },
-    {
-      text: 'Cancel',
-      role: 'cancel',
-      data: {
-        action: 'cancel',
-      },
-    },
-  ];
 
   setInputs: {
     [exerciseId: string]: {
@@ -58,16 +35,6 @@ export class StartWorkoutPage implements OnInit {
       time?: string;
     }[];
   } = {};
-
-  groupedSessions: any[] = [];
-
-  constructor(
-    private navCtrl: NavController,
-    private route: ActivatedRoute,
-    private splitService: SplitService,
-    private toastController: ToastController,
-    private workoutService: WorkoutService
-  ) {}
 
   exercises = [
     {
@@ -480,6 +447,56 @@ export class StartWorkoutPage implements OnInit {
     },
   ];
 
+  getActionSheetButtons(exerciseId: string) {
+    return [
+    {
+      text: 'Replace Exercise',
+      role: 'replace',
+      icon: 'sync-outline',
+      handler: () => {
+        console.log('Replace clicked from exercise : ', exerciseId);
+        // this.isModalOpen = true;
+        this.openModal(exerciseId);
+      },
+      data: {
+        action: 'replace',
+      },
+    },
+    {
+      text: 'Reorder Exercise',
+      role: 'reorder',
+      icon: 'swap-vertical-outline',
+      data: {
+        action: 'reorder',
+      },
+    },
+    {
+      text: 'Delete Exercise\u00A0\u00A0',
+      role: 'destructive',
+      icon: 'trash-outline',
+      data: {
+        action: 'delete',
+      },
+    },
+    {
+      text: 'Cancel',
+      role: 'cancel',
+      data: {
+        action: 'cancel',
+      },
+    },
+  ];}
+
+  constructor(
+    private navCtrl: NavController,
+    private route: ActivatedRoute,
+    private splitService: SplitService,
+    private toastController: ToastController,
+    private workoutService: WorkoutService,
+    private modalCtrl: ModalController
+  ) {}
+
+  groupedSessions: any[] = [];
   splitId!: number;
   splitName: string = '';
   selectedExerciseIds: Set<string> = new Set();
@@ -488,6 +505,7 @@ export class StartWorkoutPage implements OnInit {
   isRefreshing: boolean = false;
   searchQuery = '';
   selectionTimestamps: Map<string, number> = new Map();
+  editSelectedExerciseIds: Set<string> = new Set();
 
   ngOnInit() {
     //fetching split id from query params
@@ -590,6 +608,34 @@ export class StartWorkoutPage implements OnInit {
         });
       }
     });
+  }
+
+  async openModal(exerciseId: string) {
+    const modal = await this.modalCtrl.create({
+      component: ReplaceExerciseModal,
+      componentProps: {
+        exerciseId: exerciseId
+      }
+    });
+    modal.present();
+    const { data, role } = await modal.onWillDismiss();
+    if (role === 'confirm') {
+      console.log('Modal confirmed with data:', data);
+      if (!this.selectedExerciseIds.has(data)) {
+        this.selectedExerciseIds.delete(exerciseId);
+        this.selectionTimestamps.delete(exerciseId);
+        this.selectedExerciseIds.add(data);
+        var emptySet: any = { weight: 0, reps: 0, time: "0" };
+        if (!this.lastSessionData[data]) {
+          this.lastSessionData[data] = [];
+          this.setInputs[data] = [];
+        }
+        Array.from({ length: 3 }).forEach((_, i) => {
+          this.lastSessionData[data].push({...emptySet});
+          this.setInputs[data].push({ ...emptySet });
+        });
+      }
+    }
   }
 
   limitLength(event: any, maxLength: number) {
@@ -710,7 +756,8 @@ export class StartWorkoutPage implements OnInit {
       this.selectionTimestamps.delete(exerciseId);
     } else if (event.detail.role === 'replace') {
       console.log("replace clicked");
-    }else{
+    }else if (event.detail.role === 'reorder'){
+      console.log("reorder clicked");
     }
   }
 
@@ -724,7 +771,11 @@ export class StartWorkoutPage implements OnInit {
 
   confirm() {
     this.modal.dismiss(null, 'confirm');
-    console.log("Confirm clicked");
+    this.editSelectedExerciseIds.forEach((id) => {
+      if (!this.selectedExerciseIds.has(id)) {
+        this.selectedExerciseIds.add(id);
+      }
+    });
   }
 
   onWillDismiss(event: CustomEvent<OverlayEventDetail>) {
@@ -756,7 +807,7 @@ export class StartWorkoutPage implements OnInit {
           this.setInputs[id].push({ ...emptySet });
         });
       }
-      this.selectedExerciseIds.add(id);
+      this.editSelectedExerciseIds.add(id);
       this.selectionTimestamps.set(id, Date.now());
     }
   }

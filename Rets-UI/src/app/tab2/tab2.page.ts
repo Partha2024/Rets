@@ -1,8 +1,8 @@
 import { Component } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
+import { AlertController, RefresherCustomEvent, ToastController } from '@ionic/angular';
 import type { OverlayEventDetail } from '@ionic/core';
-import { PopoverController, RefresherCustomEvent, ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-tab2',
@@ -20,8 +20,8 @@ export class Tab2Page {
   constructor(
     private router: Router,
     private splitService: SplitService,
-    private popoverController: PopoverController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController
   ) {}
 
   loadSplits(): void {
@@ -71,8 +71,59 @@ export class Tab2Page {
     },
   ];
 
+  getActionSheetButtons(splitId: number | undefined) {
+    return [
+    {
+      text: 'Edit Split',
+      role: 'editSplit',
+      icon: 'sync-outline',
+      handler: () => {
+        console.log('Replace clicked from exercise : ', splitId);
+        this.handleEditClick(splitId);
+      },
+      data: { action: 'replace' }
+    },
+    {
+      text: 'Delete Split',
+      role: 'destructive',
+      icon: 'trash-outline',
+      data: { action: 'delete' }
+    },
+    {
+      text: 'Cancel',
+      role: 'cancel',
+      data: {
+        action: 'cancel',
+      },
+    },
+  ]}
+
+  async presentDeleteAlert(event: CustomEvent<OverlayEventDetail>, splitId: number | undefined) {
+    const alert = await this.alertController.create({
+      header: 'Are you sure?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Delete',
+          handler: () => {
+            this.handleDeleteClick(event, splitId);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
+  editActionHandler(event: CustomEvent<OverlayEventDetail>, splitId:number | undefined) {
+    if(event.detail.role === 'destructive') {
+      this.presentDeleteAlert(event, splitId);
+    }
+  }
+
   async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, split_id: number|undefined) {
-    await this.popoverController.dismiss();
     console.log(`Dismissed with role: ${event.detail.role}, split_id: ${split_id}`);
     if(event.detail.role === 'confirm' && split_id !== undefined) {
       this.splitService.deleteSplit(split_id).subscribe({
@@ -96,15 +147,12 @@ export class Tab2Page {
   }
 
   async handleEditClick(split_id: number|undefined) {
-    await this.popoverController.dismiss();
     console.log(`Edit split_id: ${split_id}`);
-    // this.router.navigate(['/create-split?split_id=' + split_id]);
     this.router.navigate(['/create-split'], { queryParams: { split_id: split_id } });
   }
 
   handleStartWorkoutClick(split_id: number|undefined) {
     console.log(`Edit split_id: ${split_id}`);
-    // this.router.navigate(['/create-split?split_id=' + split_id]);
     this.router.navigate(['/start-workout'], { queryParams: { split_id: split_id } });
   }
 

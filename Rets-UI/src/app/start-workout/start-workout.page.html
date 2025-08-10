@@ -33,27 +33,9 @@
           <ion-icon [id]="'open-action-sheet' + j" name="ellipsis-vertical" class="more-icon relative right-[-5px] text-base"></ion-icon>
           <ion-action-sheet
             [trigger]="'open-action-sheet' + j"
-            [buttons]="actionSheetButtons"
+            [buttons]="getActionSheetButtons(exercise.Exercise_id)"
             (didDismiss)="editActionHandler($event, exercise.Exercise_id)"
           ></ion-action-sheet>
-          <!-- <ion-popover [trigger]="'popover-trigger-'" triggerAction="click" side="bottom" alignment="end">
-            <ng-template>
-              <ion-content class="">
-                <ion-item button>
-                  <ion-label>
-                    Edit
-                  </ion-label>
-                </ion-item>
-                <ion-item button>
-                  <ion-label id="delteSplit" color="danger">Delete</ion-label>
-                  <ion-alert
-                    trigger="delteSplit"
-                    header="Are you sure ?"
-                  ></ion-alert>
-                </ion-item>
-              </ion-content>
-            </ng-template>
-          </ion-popover> -->
         </ion-item>
       </ion-card-header>
       <!-- Card Content -->
@@ -185,7 +167,4 @@
       </ion-button>
     </div>
   </ion-list>
-
-  <!-- <ion-button expand="block" (click)="addExercise()">Add Exercise</ion-button> -->
-  <!-- <ion-button expand="block" color="success" (click)="saveSplit()" class="mx-3">Save Split</ion-button>   -->
-</ion-content>
+</ion-content>  
