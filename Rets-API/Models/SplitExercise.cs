@@ -13,5 +13,7 @@ namespace Rets_API.Models
     [ForeignKey("Exercise")]
     public required string ExerciseId { get; set; }
     public Exercise? Exercise { get; set; }
+    public int SortOrder { get; set; }
+    
   }
 }

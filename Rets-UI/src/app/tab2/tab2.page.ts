@@ -25,6 +25,7 @@ export class Tab2Page {
   ) {}
 
   loadSplits(): void {
+    console.log("loadSpilt called");
     this.splitService.getSplits().subscribe({
       next: (data) => {
         this.splits = data;
@@ -53,23 +54,6 @@ export class Tab2Page {
     event.stopPropagation();
     this.router.navigate(['/create-split']);
   }
-
-  public alertButtons = [
-    {
-      text: 'Cancel',
-      role: 'cancel',
-      handler: () => {
-        console.log('Alert canceled');
-      },
-    },
-    {
-      text: 'OK',
-      role: 'confirm',
-      handler: () => {
-        console.log('Alert confirmed');
-      },
-    },
-  ];
 
   getActionSheetButtons(splitId: number | undefined) {
     return [
@@ -108,6 +92,7 @@ export class Tab2Page {
         },
         {
           text: 'Delete',
+          cssClass: 'alert-button-confirm',
           handler: () => {
             this.handleDeleteClick(event, splitId);
           },
@@ -125,7 +110,7 @@ export class Tab2Page {
 
   async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, split_id: number|undefined) {
     console.log(`Dismissed with role: ${event.detail.role}, split_id: ${split_id}`);
-    if(event.detail.role === 'confirm' && split_id !== undefined) {
+    if(event.detail.role === 'destructive' && split_id !== undefined) {
       this.splitService.deleteSplit(split_id).subscribe({
         next: () => {
           setTimeout(async () => {

@@ -118,6 +118,11 @@ namespace Rets_API.Migrations
                     b.Property<int>("Id")
                         .HasColumnType("integer");
 
+                    b.Property<int>("SortOrder")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("integer")
+                        .HasDefaultValue(0);
+
                     b.HasKey("SplitId", "ExerciseId");
 
                     b.HasIndex("ExerciseId");

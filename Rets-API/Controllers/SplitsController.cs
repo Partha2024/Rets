@@ -27,12 +27,13 @@ namespace Rets_API.Controllers
       {
         SplitName = splitDto.SplitName,
         DefaultDay = splitDto.DefaultDay,
-        SplitExercises = splitDto.ExerciseIds.Select(eid => new SplitExercise
+        SplitExercises = splitDto.ExerciseIds.Select(e => new SplitExercise
         {
-          ExerciseId = eid
+          ExerciseId = e.ExerciseId,
+          SortOrder = e.SortOrder
         }).ToList()
       };
-
+      Console.WriteLine($"[CreateSplit] Split created with name: {split} ✅");
       _context.Splits.Add(split);
       await _context.SaveChangesAsync();
 
@@ -41,7 +42,13 @@ namespace Rets_API.Controllers
         SplitId = split.SplitId,
         SplitName = split.SplitName,
         DefaultDay = split.DefaultDay,
-        ExerciseIds = split.SplitExercises.Select(se => se.ExerciseId).ToList()
+        ExerciseIds = split.SplitExercises
+              .OrderBy(se => se.SortOrder)
+              .Select(se => new SplitExerciseOrderDto
+              {
+                ExerciseId = se.ExerciseId,
+                SortOrder = se.SortOrder
+              }).ToList()
       };
       _cache.Remove("Splits");
       return Ok(response);
@@ -52,21 +59,19 @@ namespace Rets_API.Controllers
     {
       if (_cache.TryGetValue("Splits", out var allSplits))
       {
-        var warmup = _context.Splits
-        .Include(s => s.SplitExercises)
-        .ThenInclude(se => se.Exercise)
-        .FirstOrDefaultAsync(s => s.SplitId == id);
-
-        Console.WriteLine($"inside All Spilts Cache ✅");
-        var cachedSplit = ((IEnumerable<SplitDto>)allSplits).FirstOrDefault(s => s.SplitId == id);
-        Console.WriteLine($"[GetSplit] Returned from cache for ID: {id} ✅");
-        return Ok(cachedSplit);
+        Console.WriteLine($"[GetSplit] Inside cache ✅");
+        var cachedSplit = ((IEnumerable<SplitDto>)allSplits)
+            .FirstOrDefault(s => s.SplitId == id);
+        if (cachedSplit != null)
+        {
+          Console.WriteLine($"[GetSplit] Returned from cache for ID: {id} ✅");
+          return Ok(cachedSplit);
+        }
       }
-
       var split = await _context.Splits
-        .Include(s => s.SplitExercises)
-        .ThenInclude(se => se.Exercise)
-        .FirstOrDefaultAsync(s => s.SplitId == id);
+          .Include(s => s.SplitExercises)
+          .ThenInclude(se => se.Exercise)
+          .FirstOrDefaultAsync(s => s.SplitId == id);
 
       if (split == null)
       {
@@ -78,9 +83,14 @@ namespace Rets_API.Controllers
         SplitId = split.SplitId,
         SplitName = split.SplitName,
         DefaultDay = split.DefaultDay,
-        ExerciseIds = split.SplitExercises.Select(se => se.ExerciseId).ToList()
+        ExerciseIds  = split.SplitExercises
+              .OrderBy(se => se.SortOrder) // Keep exercises in correct order
+              .Select(se => new SplitExerciseOrderDto
+              {
+                ExerciseId = se.ExerciseId, // int to int — no mismatch
+                SortOrder = se.SortOrder
+              }).ToList()
       };
-
       return Ok(dto);
     }
 
@@ -94,16 +104,23 @@ namespace Rets_API.Controllers
       }
 
       var splits = await _context.Splits
-        .Include(s => s.SplitExercises)
-        .ToListAsync();
+          .Include(s => s.SplitExercises)
+          .ThenInclude(se => se.Exercise)
+          .ToListAsync();
 
       var dtos = splits.Select(split => new SplitDto
       {
         SplitId = split.SplitId,
         SplitName = split.SplitName,
         DefaultDay = split.DefaultDay,
-        ExerciseIds = split.SplitExercises.Select(se => se.ExerciseId).ToList()
-      });
+        ExerciseIds = split.SplitExercises
+              .OrderBy(se => se.SortOrder) // keep order consistent
+              .Select(se => new SplitExerciseOrderDto
+              {
+                ExerciseId = se.ExerciseId,
+                SortOrder = se.SortOrder
+              }).ToList()
+      }).ToList();
 
       _cache.Set("Splits", dtos, TimeSpan.FromMinutes(10));
       Console.WriteLine("[Splits] Cached result ✅");
@@ -126,11 +143,7 @@ namespace Rets_API.Controllers
           return NotFound(new { message = $"Split with ID {id} not found." });
         }
         _context.Splits.Remove(split);
-        var sw = System.Diagnostics.Stopwatch.StartNew();
         await _context.SaveChangesAsync();
-        sw.Stop();
-
-        Console.WriteLine($"SaveChangesAsync took {sw.ElapsedMilliseconds} ms");
         _cache.Remove("Splits");
         return Ok(new { message = $"Split with ID {id} deleted successfully." });
       }
@@ -153,30 +166,33 @@ namespace Rets_API.Controllers
         return NotFound($"Split with ID {split_id} not found.");
       }
 
-      // Update name and default day
       existingSplit.SplitName = splitDto.SplitName;
       existingSplit.DefaultDay = splitDto.DefaultDay;
 
-      // Remove old exercises
       _context.SplitExercises.RemoveRange(existingSplit.SplitExercises);
 
-      // Add new exercises
-      existingSplit.SplitExercises = splitDto.ExerciseIds.Select(eid => new SplitExercise
+      existingSplit.SplitExercises = splitDto.ExerciseIds.Select(e => new SplitExercise
       {
         SplitId = split_id,
-        ExerciseId = eid
+        ExerciseId = e.ExerciseId,
+        SortOrder = e.SortOrder
       }).ToList();
 
       await _context.SaveChangesAsync();
       _cache.Remove("Splits");
 
-      // Prepare response
       var response = new SplitDto
       {
         SplitId = existingSplit.SplitId,
         SplitName = existingSplit.SplitName,
         DefaultDay = existingSplit.DefaultDay,
-        ExerciseIds = existingSplit.SplitExercises.Select(se => se.ExerciseId).ToList()
+        ExerciseIds = existingSplit.SplitExercises
+              .OrderBy(se => se.SortOrder)
+              .Select(se => new SplitExerciseOrderDto
+              {
+                ExerciseId = se.ExerciseId,
+                SortOrder = se.SortOrder
+              }).ToList()
       };
       return Ok(response);
     }

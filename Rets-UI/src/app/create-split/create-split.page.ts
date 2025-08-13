@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { NavController, ToastController } from '@ionic/angular';
 import { ExerciseService, Exercise } from '../services/exercise.service';
-import { SplitService, Split } from '../services/split.service';
+import { SplitService, Split, SplitExercise } from '../services/split.service';
 import { ActivatedRoute } from '@angular/router';
 
 @Component({
@@ -424,7 +424,7 @@ export class CreateSplitPage implements OnInit {
 
   splitName: string = '';
   searchQuery = '';
-  selectedExerciseIds: Set<string> = new Set();
+  selectedExerciseIds: Set<SplitExercise> = new Set();
   defaultDay!: string;
   headerTitle: string = 'Create New Split';
   selectionTimestamps: Map<string, number> = new Map();
@@ -456,12 +456,13 @@ export class CreateSplitPage implements OnInit {
         //fetching split data from db
         this.splitService.getSplit(this.splitId).subscribe({
           next: (data) => {
+            console.log('Split Data:', data);
             this.splitName = data.splitName;
             this.selectedExerciseIds = new Set(data.exerciseIds);
             this.defaultDay = data.defaultDay;
             console.log('Loaded Existing Split:', data);
-            data.exerciseIds.forEach((id) => {
-              this.selectionTimestamps.set(id, Date.now());
+            data.exerciseIds.forEach((exercise) => {
+              this.selectionTimestamps.set(exercise.exerciseId, Date.now());
             })
           },
           error: (err) => {
@@ -478,18 +479,35 @@ export class CreateSplitPage implements OnInit {
     this.navCtrl.back();
   }
   
+  // toggleExerciseSelection(id: string) {
+  //   if (this.selectedExerciseIds.has(id)) {
+  //     this.selectedExerciseIds.delete(id);
+  //     this.selectionTimestamps.delete(id);
+  //   } else {
+  //     this.selectedExerciseIds.add(id);
+  //     this.selectionTimestamps.set(id, Date.now());
+  //   }
+  // }
+
   toggleExerciseSelection(id: string) {
-    if (this.selectedExerciseIds.has(id)) {
-      this.selectedExerciseIds.delete(id);
+    const existing = Array.from(this.selectedExerciseIds).find(
+      (e: any) => e.exerciseId === id
+    );
+    if (existing) {
+      this.selectedExerciseIds.delete(existing);
       this.selectionTimestamps.delete(id);
     } else {
-      this.selectedExerciseIds.add(id);
+      this.selectedExerciseIds.add({ exerciseId: id, sortOrder: this.selectedExerciseIds.size + 1 });
       this.selectionTimestamps.set(id, Date.now());
     }
+    console.log('Selected Exercises:', Array.from(this.selectedExerciseIds));
   }
 
   isSelected(id: string): boolean {
-    return this.selectedExerciseIds.has(id);
+    // return this.selectedExerciseIds.has(id);
+    return Array.from(this.selectedExerciseIds).some(
+      (e: SplitExercise) => e.exerciseId === id
+    );
   }
 
   get filteredExercises() {
@@ -550,6 +568,8 @@ export class CreateSplitPage implements OnInit {
       defaultDay: this.defaultDay,
       exerciseIds: Array.from(this.selectedExerciseIds),
     };
+
+    console.log("Split Payload: ", splitData)
 
     // subscription to create or update split
     if(this.splitId){

@@ -71,7 +71,7 @@ namespace Rets_API.Controllers
         .Where(ws => ws.SplitId == splitId)
         .OrderByDescending(ws => ws.StartTime)
         .Include(ws => ws.ExerciseLogs)
-        .ThenInclude(el => el.Exercise)
+          .ThenInclude(el => el.Exercise)
         .FirstOrDefaultAsync();
 
       if (lastSession == null)
@@ -79,12 +79,23 @@ namespace Rets_API.Controllers
         return Ok(null);
       }
 
+      var orderedLogs = lastSession.ExerciseLogs
+        .OrderBy(log =>
+            _context.SplitExercises
+                .Where(se => se.SplitId == splitId && se.ExerciseId == log.ExerciseId)
+                .Select(se => se.SortOrder)
+                .FirstOrDefault()
+        )
+        .ThenBy(log => log.SetNumber) // optional, for within-exercise order
+        .ToList();
+
       var result = new
       {
         lastSession.SessionId,
         lastSession.SplitId,
         lastSession.StartTime,
         ExerciseLogs = lastSession.ExerciseLogs.Select(log => new
+        // ExerciseLogs = orderedLogs.Select(log => new
         {
           log.LogId,
           log.ExerciseId,

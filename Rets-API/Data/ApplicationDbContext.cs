@@ -31,23 +31,15 @@ namespace Rets_API.Data
         .WithMany(e => e.SplitExercises)
         .HasForeignKey(se => se.ExerciseId);
 
-      // One-to-Many Split ↔ WorkoutSession
-      modelBuilder.Entity<WorkoutSession>()
-          .HasOne(ws => ws.Split)
-          .WithMany()
-          .HasForeignKey(ws => ws.SplitId);
+      // Always order exercises in a split by 'Order'
+      modelBuilder.Entity<Split>()
+        .Navigation(s => s.SplitExercises)
+        .UsePropertyAccessMode(PropertyAccessMode.Property);
 
-      // One-to-Many WorkoutSession ↔ ExerciseLog
-      modelBuilder.Entity<ExerciseLog>()
-          .HasOne(el => el.WorkoutSession)
-          .WithMany(ws => ws.ExerciseLogs)
-          .HasForeignKey(el => el.SessionId);
-
-      // One-to-Many Exercise ↔ ExerciseLog
-      modelBuilder.Entity<ExerciseLog>()
-          .HasOne(el => el.Exercise)
-          .WithMany()
-          .HasForeignKey(el => el.ExerciseId);
+      // Optionally configure default value for 'Order'
+      modelBuilder.Entity<SplitExercise>()
+        .Property(se => se.SortOrder)
+        .HasDefaultValue(0);
     }
   }
 }

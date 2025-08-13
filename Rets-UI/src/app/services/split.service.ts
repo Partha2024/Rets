@@ -3,11 +3,16 @@ import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
+export interface SplitExercise {
+  exerciseId: string;
+  sortOrder: number;
+}
+
 export interface Split {
   splitId?: number;
   splitName: string;
   defaultDay: string;
-  exerciseIds: string[];
+  exerciseIds: SplitExercise[];
 }
 
 @Injectable({
@@ -39,7 +44,7 @@ export class SplitService {
     return this.http.delete(`${this.apiUrl}/delete/${split_id}`);
   }
 
-  // POST: Create a new split
+  // POST: Update an existing split
   updateSplit(split_id: number, split: Split): Observable<Split> {
     return this.http.post<Split>(`${this.apiUrl}/update/${split_id}`, split);
   }

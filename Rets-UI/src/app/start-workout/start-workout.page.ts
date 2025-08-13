@@ -1,7 +1,11 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
-import { NavController, ToastController, RefresherCustomEvent } from '@ionic/angular';
+import {
+  NavController,
+  ToastController,
+  RefresherCustomEvent,
+} from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
-import { SplitService } from '../services/split.service';
+import { SplitExercise, SplitService } from '../services/split.service';
 import {
   WorkoutService,
   lastWorkoutSession,
@@ -17,7 +21,6 @@ import { ReplaceExerciseModal } from './components/replace-exercise.component';
   standalone: false,
 })
 export class StartWorkoutPage implements OnInit {
-
   @ViewChild(IonModal) modal!: IonModal;
 
   setInputs: {
@@ -449,43 +452,44 @@ export class StartWorkoutPage implements OnInit {
 
   getActionSheetButtons(exerciseId: string) {
     return [
-    {
-      text: 'Replace Exercise',
-      role: 'replace',
-      icon: 'sync-outline',
-      handler: () => {
-        console.log('Replace clicked from exercise : ', exerciseId);
-        // this.isModalOpen = true;
-        this.openModal(exerciseId);
+      {
+        text: 'Replace Exercise',
+        role: 'replace',
+        icon: 'sync-outline',
+        handler: () => {
+          console.log('Replace clicked from exercise : ', exerciseId);
+          // this.isModalOpen = true;
+          this.openModal(exerciseId);
+        },
+        data: {
+          action: 'replace',
+        },
       },
-      data: {
-        action: 'replace',
+      {
+        text: 'Reorder Exercise',
+        role: 'reorder',
+        icon: 'swap-vertical-outline',
+        data: {
+          action: 'reorder',
+        },
       },
-    },
-    {
-      text: 'Reorder Exercise',
-      role: 'reorder',
-      icon: 'swap-vertical-outline',
-      data: {
-        action: 'reorder',
+      {
+        text: 'Delete Exercise\u00A0\u00A0',
+        role: 'destructive',
+        icon: 'trash-outline',
+        data: {
+          action: 'delete',
+        },
       },
-    },
-    {
-      text: 'Delete Exercise\u00A0\u00A0',
-      role: 'destructive',
-      icon: 'trash-outline',
-      data: {
-        action: 'delete',
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        data: {
+          action: 'cancel',
+        },
       },
-    },
-    {
-      text: 'Cancel',
-      role: 'cancel',
-      data: {
-        action: 'cancel',
-      },
-    },
-  ];}
+    ];
+  }
 
   constructor(
     private navCtrl: NavController,
@@ -499,7 +503,7 @@ export class StartWorkoutPage implements OnInit {
   groupedSessions: any[] = [];
   splitId!: number;
   splitName: string = '';
-  selectedExerciseIds: Set<string> = new Set();
+  selectedExerciseIds: Set<SplitExercise> = new Set();
   defaultDay!: string;
   lastWorkoutSession?: lastWorkoutSession;
   isRefreshing: boolean = false;
@@ -518,15 +522,15 @@ export class StartWorkoutPage implements OnInit {
           next: (data) => {
             this.splitName = data.splitName;
             this.selectedExerciseIds = new Set(data.exerciseIds);
-            console.log("this.selectedExerciseIds : ", this.selectedExerciseIds, data.exerciseIds);
+            console.log("this.selectedExerciseIds : ", this.selectedExerciseIds);
             this.defaultDay = data.defaultDay;
-            this.selectedExerciseIds.forEach((exId) => {
-              this.setInputs[exId] = [
+            this.selectedExerciseIds.forEach((exercise) => {
+              this.setInputs[exercise.exerciseId] = [
                 { weight: undefined, reps: undefined, time: undefined },
                 { weight: undefined, reps: undefined, time: undefined },
                 { weight: undefined, reps: undefined, time: undefined },
               ];
-              this.selectionTimestamps.set(exId, Date.now());
+              this.selectionTimestamps.set(exercise.exerciseId, Date.now());
             });
             console.log('Loaded Split:', data);
           },
@@ -540,23 +544,29 @@ export class StartWorkoutPage implements OnInit {
           next: (session) => {
             //is last session data is null then create a new empty session data
             if (session == null) {
-              console.log("selectedExercises", this.selectedExercises);
+              console.log('selectedExercises dasdasdsd ', this.selectedExercises);
               this.groupedSessions = this.selectedExercises.map((exercise) => ({
                 exerciseId: exercise.Exercise_id,
                 setData: Array.from({ length: 3 }).map(() => ({
-                  weight: "0",
-                  reps: "0",
-                  time: "0",
+                  weight: '0',
+                  reps: '0',
+                  time: '0',
                 })),
               }));
               this.groupedSessions.forEach((ex) => {
                 this.lastSessionData[ex.exerciseId] = ex.setData;
               });
-              console.log('Generated empty lastSessionData:',this.lastSessionData);
+              console.log(
+                'Generated empty lastSessionData:',
+                this.lastSessionData
+              );
             } else {
               this.lastWorkoutSession = session;
               console.log('lastWorkoutSession', session);
-              const exerciseMap = new Map<string,{ exerciseId: string; setData: any[] }>();
+              const exerciseMap = new Map<
+                string,
+                { exerciseId: string; setData: any[] }
+              >();
               session.exerciseLogs.forEach((log) => {
                 const id = log.exerciseId;
                 const existing = exerciseMap.get(id);
@@ -588,18 +598,32 @@ export class StartWorkoutPage implements OnInit {
               });
 
               // Iterate through each exerciseId in selectedExerciseIds
-              this.selectedExerciseIds.forEach((exId) => {
-                const groupedSets = this.groupedSessions.filter((session) => session.exerciseId === exId);
-                const setInputsForExercise: { weight?: number; reps?: number; time?: string; }[] = [];
+              this.selectedExerciseIds.forEach((exercise) => {
+                const groupedSets = this.groupedSessions.filter(
+                  (session) => session.exerciseId === exercise.exerciseId
+                );
+                const setInputsForExercise: {
+                  weight?: number;
+                  reps?: number;
+                  time?: string;
+                }[] = [];
                 groupedSets.forEach((session) => {
                   session.setData.forEach(() => {
-                    setInputsForExercise.push({ weight: undefined, reps: undefined, time: undefined });
+                    setInputsForExercise.push({
+                      weight: undefined,
+                      reps: undefined,
+                      time: undefined,
+                    });
                   });
                 });
-                this.setInputs[exId] = setInputsForExercise;
+                this.setInputs[exercise.exerciseId] = setInputsForExercise;
               });
 
-              console.log('Last Session Data:',this.lastSessionData,typeof this.lastSessionData);
+              console.log(
+                'Last Session Data:',
+                this.lastSessionData,
+                typeof this.lastSessionData
+              );
             }
           },
           error: (err) => {
@@ -610,28 +634,71 @@ export class StartWorkoutPage implements OnInit {
     });
   }
 
+  // async openModal(exerciseId: string) {
+  //   const modal = await this.modalCtrl.create({
+  //     component: ReplaceExerciseModal,
+  //     componentProps: {
+  //       exerciseId: exerciseId,
+  //     },
+  //   });
+  //   modal.present();
+  //   const { data, role } = await modal.onWillDismiss();
+  //   if (role === 'confirm') {
+  //     console.log('Modal confirmed with data:', data);
+  //     if (!this.selectedExerciseIds.has(data)) {
+  //       this.selectedExerciseIds.delete(exerciseId);
+  //       this.selectionTimestamps.delete(exerciseId);
+  //       this.selectedExerciseIds.add(data);
+  //       var emptySet: any = { weight: 0, reps: 0, time: '0' };
+  //       if (!this.lastSessionData[data]) {
+  //         this.lastSessionData[data] = [];
+  //         this.setInputs[data] = [];
+  //       }
+  //       Array.from({ length: 3 }).forEach((_, i) => {
+  //         this.lastSessionData[data].push({ ...emptySet });
+  //         this.setInputs[data].push({ ...emptySet });
+  //       });
+  //     }
+  //   }
+  // }
+  
   async openModal(exerciseId: string) {
     const modal = await this.modalCtrl.create({
       component: ReplaceExerciseModal,
-      componentProps: {
-        exerciseId: exerciseId
-      }
+      componentProps: { exerciseId },
     });
-    modal.present();
+    await modal.present();
+
     const { data, role } = await modal.onWillDismiss();
-    if (role === 'confirm') {
+    if (role === 'confirm' && data) {
       console.log('Modal confirmed with data:', data);
-      if (!this.selectedExerciseIds.has(data)) {
-        this.selectedExerciseIds.delete(exerciseId);
-        this.selectionTimestamps.delete(exerciseId);
-        this.selectedExerciseIds.add(data);
-        var emptySet: any = { weight: 0, reps: 0, time: "0" };
+
+      // Check if the new exercise is already selected
+      const exists = Array.from(this.selectedExerciseIds)
+        .some(e => e.exerciseId === data);
+
+      if (!exists) {
+        // Remove old exercise from the set
+        this.selectedExerciseIds.forEach(e => {
+          if (e.exerciseId === exerciseId) {
+            this.selectedExerciseIds.delete(e);
+          }
+        });
+
+        // Add new exercise
+        this.selectedExerciseIds.add({
+          exerciseId: data,
+          sortOrder: 0
+        });
+
+        // Populate default sets
+        const emptySet: any = { weight: 0, reps: 0, time: '0' };
         if (!this.lastSessionData[data]) {
           this.lastSessionData[data] = [];
           this.setInputs[data] = [];
         }
-        Array.from({ length: 3 }).forEach((_, i) => {
-          this.lastSessionData[data].push({...emptySet});
+        Array.from({ length: 3 }).forEach(() => {
+          this.lastSessionData[data].push({ ...emptySet });
           this.setInputs[data].push({ ...emptySet });
         });
       }
@@ -645,11 +712,38 @@ export class StartWorkoutPage implements OnInit {
     }
   }
 
+  // get selectedExercises() {
+  //   return this.exercises.filter((ex) =>
+  //     this.selectedExerciseIds.has(ex.Exercise_id)
+  //   );
+  // }
+  // get selectedExercises() {
+  //   return this.exercises.filter(ex =>
+  //     Array.from(this.selectedExerciseIds).some(
+  //       (e: any) => e.exerciseId === ex.Exercise_id
+  //     )
+  //   );
+  // }
   get selectedExercises() {
-    return this.exercises.filter((ex) =>
-      this.selectedExerciseIds.has(ex.Exercise_id)
-    );
+    return this.exercises
+      .filter(ex =>
+        Array.from(this.selectedExerciseIds).some(
+          (e: any) => e.exerciseId === ex.Exercise_id
+        )
+      )
+      .sort((a, b) => {
+        const orderA = (Array.from(this.selectedExerciseIds).find(
+          (e: any) => e.exerciseId === a.Exercise_id
+        ) as any)?.sortOrder ?? 0;
+
+        const orderB = (Array.from(this.selectedExerciseIds).find(
+          (e: any) => e.exerciseId === b.Exercise_id
+        ) as any)?.sortOrder ?? 0;
+
+        return orderA - orderB;
+      });
   }
+
 
   goBack() {
     this.navCtrl.back();
@@ -679,14 +773,16 @@ export class StartWorkoutPage implements OnInit {
     });
 
     let isSessionValid = logs.every((log) => {
-      let logExerciseType = this.exercises.find(ex => ex.Exercise_id === log.ExerciseId)?.Exercise_type;
+      let logExerciseType = this.exercises.find(
+        (ex) => ex.Exercise_id === log.ExerciseId
+      )?.Exercise_type;
 
-      if (logExerciseType === "Weighted Reps") {
+      if (logExerciseType === 'Weighted Reps') {
         // return log.Reps != null && log.Weight != null;
         return log.Reps > 0 && log.Weight > 0;
-      } else if (logExerciseType === "Bodyweight Reps") {
+      } else if (logExerciseType === 'Bodyweight Reps') {
         return log.Reps != null;
-      } else if (logExerciseType === "Bodyweight Timed") {
+      } else if (logExerciseType === 'Bodyweight Timed') {
         return log.Time != null;
       }
 
@@ -694,7 +790,7 @@ export class StartWorkoutPage implements OnInit {
       return false;
     });
 
-    console.log("isSessionValid", isSessionValid);
+    console.log('isSessionValid', isSessionValid);
 
     if (!isSessionValid) {
       const toast = await this.toastController.create({
@@ -728,52 +824,88 @@ export class StartWorkoutPage implements OnInit {
     setTimeout(() => {
       window.location.reload();
       this.isRefreshing = false;
-      event.target.complete(); 
+      event.target.complete();
     }, 1000);
   }
 
   addMoreSets(exerciseId: string) {
-    console.log("Add More Set Clicked : ", exerciseId);
-    var emptySet: any = { weight: 0, reps: 0, time: "0" };
+    console.log('Add More Set Clicked : ', exerciseId);
+    var emptySet: any = { weight: 0, reps: 0, time: '0' };
     if (!this.lastSessionData[exerciseId]) {
       this.lastSessionData[exerciseId] = [];
       this.setInputs[exerciseId] = [];
     }
-    this.lastSessionData[exerciseId].push({...emptySet});
+    this.lastSessionData[exerciseId].push({ ...emptySet });
     this.setInputs[exerciseId].push({ ...emptySet });
-    console.log("this.lastSessionData after adding new set : ",this.lastSessionData);
+    console.log(
+      'this.lastSessionData after adding new set : ',
+      this.lastSessionData
+    );
   }
 
   deleteSet(setNumber: number, exerciseId: string) {
-    console.log("delete set : ",exerciseId, setNumber);
+    console.log('delete set : ', exerciseId, setNumber);
     this.lastSessionData[exerciseId].splice(setNumber, 1);
     this.setInputs[exerciseId].splice(setNumber, 1);
   }
 
-  editActionHandler(event: CustomEvent<OverlayEventDetail>, exerciseId:string) {
-    if(event.detail.role === 'destructive') {
-      this.selectedExerciseIds.delete(exerciseId);
+  // editActionHandler(
+  //   event: CustomEvent<OverlayEventDetail>,
+  //   exerciseId: string
+  // ) {
+  //   if (event.detail.role === 'destructive') {
+  //     this.selectedExerciseIds.delete(exerciseId);
+  //     this.selectionTimestamps.delete(exerciseId);
+  //   } else if (event.detail.role === 'replace') {
+  //     console.log('replace clicked');
+  //   } else if (event.detail.role === 'reorder') {
+  //     console.log('reorder clicked');
+  //   }
+  // }
+
+  editActionHandler(event: CustomEvent<OverlayEventDetail>, exerciseId: string) {
+    if (event.detail.role === 'destructive') {
+      const toDelete = Array.from(this.selectedExerciseIds).find(
+        (e: any) => e.exerciseId === exerciseId
+      );
+      if (toDelete) {
+        this.selectedExerciseIds.delete(toDelete);
+      }
       this.selectionTimestamps.delete(exerciseId);
     } else if (event.detail.role === 'replace') {
-      console.log("replace clicked");
-    }else if (event.detail.role === 'reorder'){
-      console.log("reorder clicked");
+      console.log('replace clicked');
+    } else if (event.detail.role === 'reorder') {
+      console.log('reorder clicked');
     }
   }
 
-  addExercise(){
-    console.log("Add Exercise Clicked");
+  addExercise() {
+    console.log('Add Exercise Clicked');
   }
 
   cancel() {
     this.modal.dismiss(null, 'cancel');
   }
 
+  // confirm() {
+  //   this.modal.dismiss(null, 'confirm');
+  //   this.editSelectedExerciseIds.forEach((id) => {
+  //     if (!this.selectedExerciseIds.has(id)) {
+  //       this.selectedExerciseIds.add(id);
+  //     }
+  //   });
+  // }
   confirm() {
     this.modal.dismiss(null, 'confirm');
     this.editSelectedExerciseIds.forEach((id) => {
-      if (!this.selectedExerciseIds.has(id)) {
-        this.selectedExerciseIds.add(id);
+      const exists = Array.from(this.selectedExerciseIds).some(
+        (e: any) => e.exerciseId === id
+      );
+      if (!exists) {
+        this.selectedExerciseIds.add({
+          exerciseId: id,
+          sortOrder: this.selectedExerciseIds.size + 1,
+        });
       }
     });
   }
@@ -784,52 +916,96 @@ export class StartWorkoutPage implements OnInit {
     }
   }
 
+  // toggleExerciseSelection(id: string) {
+  //   console.log("toggle : ", this.selectedExerciseIds)
+  //   if (this.selectedExerciseIds.has(id)) {
+  //     this.selectedExerciseIds.delete(id);
+  //     this.selectionTimestamps.delete(id);
+  //   } else {
+  //     if(this.lastSessionData[id]) {
+  //       this.setInputs[id] = [];
+  //       this.lastSessionData[id].forEach((set) => {
+  //         var tempSet: any = { weight: set.weight, reps: set.reps, time: set.time };
+  //         this.setInputs[id].push({ ...tempSet });
+  //       })
+  //     }else{
+  //       var emptySet: any = { weight: 0, reps: 0, time: "0" };
+  //       if (!this.lastSessionData[id]) {
+  //         this.lastSessionData[id] = [];
+  //         this.setInputs[id] = [];
+  //       }
+  //       Array.from({ length: 3 }).forEach((_, i) => {
+  //         this.lastSessionData[id].push({...emptySet});
+  //         this.setInputs[id].push({ ...emptySet });
+  //       });
+  //     }
+  //     this.editSelectedExerciseIds.add(id);
+  //     this.selectionTimestamps.set(id, Date.now());
+  //   }
+  // }
   toggleExerciseSelection(id: string) {
-    console.log("toggle : ", this.selectedExerciseIds)
-    if (this.selectedExerciseIds.has(id)) {
-      this.selectedExerciseIds.delete(id);
+    console.log('toggle : ', this.selectedExerciseIds);
+    const existing = Array.from(this.selectedExerciseIds).find(
+      (e: any) => e.exerciseId === id
+    );
+    if (existing) {
+      this.selectedExerciseIds.delete(existing);
       this.selectionTimestamps.delete(id);
     } else {
-      if(this.lastSessionData[id]) {
+      if (this.lastSessionData[id]) {
         this.setInputs[id] = [];
         this.lastSessionData[id].forEach((set) => {
-          var tempSet: any = { weight: set.weight, reps: set.reps, time: set.time };
+          const tempSet = {
+            weight: set.weight,
+            reps: set.reps,
+            time: set.time,
+          };
           this.setInputs[id].push({ ...tempSet });
-        })
-      }else{
-        var emptySet: any = { weight: 0, reps: 0, time: "0" };
-        if (!this.lastSessionData[id]) {
-          this.lastSessionData[id] = [];
-          this.setInputs[id] = [];
-        }
-        Array.from({ length: 3 }).forEach((_, i) => {
-          this.lastSessionData[id].push({...emptySet});
+        });
+      } else {
+        const emptySet = { weight: 0, reps: 0, time: '0' };
+        this.lastSessionData[id] = [];
+        this.setInputs[id] = [];
+        Array.from({ length: 3 }).forEach(() => {
+          this.lastSessionData[id].push({ ...emptySet });
           this.setInputs[id].push({ ...emptySet });
         });
       }
+      this.selectedExerciseIds.add({
+        exerciseId: id,
+        sortOrder: this.selectedExerciseIds.size + 1,
+      });
       this.editSelectedExerciseIds.add(id);
       this.selectionTimestamps.set(id, Date.now());
     }
   }
 
+  // isSelected(id: string): boolean {
+  //   return this.selectedExerciseIds.has(id);
+  // }
   isSelected(id: string): boolean {
-    return this.selectedExerciseIds.has(id);
+    return Array.from(this.selectedExerciseIds).some(
+      (e: any) => e.exerciseId === id
+    );
   }
 
   get filteredExercises() {
-    return this.exercises.filter(e => e.Exercise_name.toLowerCase().includes(this.searchQuery.toLowerCase())).sort((a, b) => {
-      const aTime = this.selectionTimestamps.get(a.Exercise_id);
-      const bTime = this.selectionTimestamps.get(b.Exercise_id);
-      if (aTime && bTime) {
-        return aTime-bTime;
-      } else if (aTime) {
-        return -1;
-      } else if (bTime) {
-        return 1;
-      } else {
-        return 0;
-      }
-    });
+    return this.exercises
+      .filter((e) =>
+        e.Exercise_name.toLowerCase().includes(this.searchQuery.toLowerCase())
+      )
+      .sort((a, b) => {
+        const aTime = this.selectionTimestamps.get(a.Exercise_id);
+        const bTime = this.selectionTimestamps.get(b.Exercise_id);
+        if (aTime && bTime) {
+          return aTime - bTime;
+        } else if (aTime) {
+          return -1;
+        } else if (bTime) {
+          return 1;
+        } else {
+          return 0;
+        }
+      });
   }
-
 }
