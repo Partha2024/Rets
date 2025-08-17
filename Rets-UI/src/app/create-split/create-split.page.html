@@ -40,22 +40,25 @@
   </ion-searchbar>
 
   <ion-list *ngIf="exercises.length > 0; else loading" >
-    <ion-card *ngFor="let exercise of filteredExercises" class="mx-1">
-      <ion-item lines="none" class="">
-        <ion-thumbnail slot="start" class="circle-thumb"               >
-          <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="{{ exercise.exerciseName }}" />
-        </ion-thumbnail>
-        <ion-label>
-          <h2>{{ exercise.exerciseName }}</h2>
-          <p>{{ exercise.muscleGroup }}</p>
-        </ion-label>
-        <ion-checkbox
-          slot="end"
-          [checked]="isSelected(exercise.exerciseId)"
-          (ionChange)="toggleExerciseSelection(exercise.exerciseId)">
-        </ion-checkbox>
-      </ion-item>
-    </ion-card>
+    <!-- <ion-reorder-group [disabled]="false" (ionReorderEnd)="handleReorderEnd($any($event))"> -->
+      <ion-card *ngFor="let exercise of filteredExercises" class="mx-1">
+        <ion-item lines="none" class="">
+          <!-- <ion-reorder slot="start"></ion-reorder> -->
+          <ion-thumbnail slot="start" class="circle-thumb">
+            <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="{{ exercise.exerciseName }}" />
+          </ion-thumbnail>
+          <ion-label>
+            <h2>{{ exercise.exerciseName }}</h2>
+            <p>{{ exercise.muscleGroup }}</p>
+          </ion-label>
+          <ion-checkbox
+            slot="end"
+            [checked]="isSelected(exercise.exerciseId)"
+            (ionChange)="toggleExerciseSelection(exercise.exerciseId)">
+          </ion-checkbox>
+        </ion-item>
+      </ion-card>
+    <!-- </ion-reorder-group> -->
   </ion-list>
   <ng-template #loading>
     <div class="ion-padding text-center">

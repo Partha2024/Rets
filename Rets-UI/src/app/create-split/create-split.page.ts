@@ -3,6 +3,7 @@ import { NavController, ToastController } from '@ionic/angular';
 import { ExerciseService, Exercise } from '../services/exercise.service';
 import { SplitService, Split, SplitExercise } from '../services/split.service';
 import { ActivatedRoute } from '@angular/router';
+// import { ReorderEndCustomEvent } from '@ionic/angular';
 
 @Component({
   selector: 'app-create-split',
@@ -459,6 +460,7 @@ export class CreateSplitPage implements OnInit {
             console.log('Split Data:', data);
             this.splitName = data.splitName;
             this.selectedExerciseIds = new Set(data.exerciseIds);
+            console.log('Selected Exercise IDs:', this.selectedExerciseIds);
             this.defaultDay = data.defaultDay;
             console.log('Loaded Existing Split:', data);
             data.exerciseIds.forEach((exercise) => {
@@ -524,7 +526,7 @@ export class CreateSplitPage implements OnInit {
         return 0;
       }
     });
-  }
+  }   
 
   async saveSplit() {
 

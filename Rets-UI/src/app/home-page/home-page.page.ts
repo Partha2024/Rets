@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   WorkoutService,
@@ -12,13 +12,12 @@ import {
 } from '@ionic/angular';
 
 @Component({
-  selector: 'app-tab1',
-  templateUrl: 'tab1.page.html',
-  styleUrls: ['tab1.page.scss'],
+  selector: 'app-home-page',
+  templateUrl: './home-page.page.html',
+  styleUrls: ['./home-page.page.scss'],
   standalone: false,
 })
-
-export class Tab1Page {
+export class HomePagePage implements OnInit {
   splitName?: string;
   workoutSessions: workoutSession[] = [];
   groupedSessions: any[] = [];
@@ -498,7 +497,12 @@ export class Tab1Page {
               totalVolume += log.reps * log.weight;
             }
           });
-          return { sessionId: session.sessionId, exercises, totalVolume, totalSets};
+          return {
+            sessionId: session.sessionId,
+            exercises,
+            totalVolume,
+            totalSets,
+          };
         });
         console.log('Grouped Sessions:', this.groupedSessions);
       },
@@ -509,7 +513,10 @@ export class Tab1Page {
     });
   }
 
-  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, sessionId: number | undefined) {
+  async handleDeleteClick(
+    event: CustomEvent<OverlayEventDetail>,
+    sessionId: number | undefined
+  ) {
     await this.popoverController.dismiss();
     console.log(
       `Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`
@@ -544,7 +551,7 @@ export class Tab1Page {
     setTimeout(() => {
       window.location.reload();
       this.isRefreshing = false;
-      event.target.complete(); 
+      event.target.complete();
     }, 1000);
   }
 }

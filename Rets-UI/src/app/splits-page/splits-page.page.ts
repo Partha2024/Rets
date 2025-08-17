@@ -1,17 +1,16 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
-import { AlertController, RefresherCustomEvent, ToastController } from '@ionic/angular';
+import { AlertController, RefresherCustomEvent, ToastController, NavController } from '@ionic/angular';
 import type { OverlayEventDetail } from '@ionic/core';
 
 @Component({
-  selector: 'app-tab2',
-  templateUrl: 'tab2.page.html',
-  styleUrls: ['tab2.page.scss'],
+  selector: 'app-splits-page',
+  templateUrl: './splits-page.page.html',
+  styleUrls: ['./splits-page.page.scss'],
   standalone: false,
 })
-export class Tab2Page {
-
+export class SplitsPagePage implements OnInit {
   splits: Split[] = [];
 
   isLoading: boolean = true;
@@ -21,11 +20,12 @@ export class Tab2Page {
     private router: Router,
     private splitService: SplitService,
     private toastController: ToastController,
-    private alertController: AlertController
+    private alertController: AlertController,
+    private navCtrl: NavController,
   ) {}
 
   loadSplits(): void {
-    console.log("loadSpilt called");
+    console.log('loadSpilt called');
     this.splitService.getSplits().subscribe({
       next: (data) => {
         this.splits = data;
@@ -35,7 +35,7 @@ export class Tab2Page {
       error: (err) => {
         this.isLoading = false;
         console.error('Error loading exercises:', err);
-      }
+      },
     });
   }
 
@@ -49,7 +49,7 @@ export class Tab2Page {
       this.splits = JSON.parse(savedSplits);
     }
   }
-  
+
   onAddClick(event: Event) {
     event.stopPropagation();
     this.router.navigate(['/create-split']);
@@ -57,32 +57,50 @@ export class Tab2Page {
 
   getActionSheetButtons(splitId: number | undefined) {
     return [
-    {
-      text: 'Edit Split',
-      role: 'editSplit',
-      icon: 'sync-outline',
-      handler: () => {
-        console.log('Replace clicked from exercise : ', splitId);
-        this.handleEditClick(splitId);
+      {
+        text: 'Edit Split',
+        role: 'editSplit',
+        icon: 'sync-outline',
+        handler: () => {
+          console.log('Replace clicked from exercise : ', splitId);
+          this.handleEditClick(splitId);
+        },
+        data: { action: 'replace' },
       },
-      data: { action: 'replace' }
-    },
-    {
-      text: 'Delete Split',
-      role: 'destructive',
-      icon: 'trash-outline',
-      data: { action: 'delete' }
-    },
-    {
-      text: 'Cancel',
-      role: 'cancel',
-      data: {
-        action: 'cancel',
+      {
+        text: 'Delete Split',
+        role: 'destructive',
+        icon: 'trash-outline',
+        data: { action: 'delete' },
       },
-    },
-  ]}
+      {
+        text: 'Reorder Exercise',
+        role: 'reorder',
+        icon: 'swap-vertical-outline',
+        data: {
+          action: 'reorder',
+        },
+        handler: () => {
+          console.log('Reorder Exercises of Split : ', splitId);
+          this.navCtrl.navigateForward('/reorder-exercises', {
+            queryParams: { split_id: splitId },
+          });
+        }
+      },
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        data: {
+          action: 'cancel',
+        },
+      },
+    ];
+  }
 
-  async presentDeleteAlert(event: CustomEvent<OverlayEventDetail>, splitId: number | undefined) {
+  async presentDeleteAlert(
+    event: CustomEvent<OverlayEventDetail>,
+    splitId: number | undefined
+  ) {
     const alert = await this.alertController.create({
       header: 'Are you sure?',
       buttons: [
@@ -102,15 +120,23 @@ export class Tab2Page {
     await alert.present();
   }
 
-  editActionHandler(event: CustomEvent<OverlayEventDetail>, splitId:number | undefined) {
-    if(event.detail.role === 'destructive') {
+  editActionHandler(
+    event: CustomEvent<OverlayEventDetail>,
+    splitId: number | undefined
+  ) {
+    if (event.detail.role === 'destructive') {
       this.presentDeleteAlert(event, splitId);
     }
   }
 
-  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, split_id: number|undefined) {
-    console.log(`Dismissed with role: ${event.detail.role}, split_id: ${split_id}`);
-    if(event.detail.role === 'destructive' && split_id !== undefined) {
+  async handleDeleteClick(
+    event: CustomEvent<OverlayEventDetail>,
+    split_id: number | undefined
+  ) {
+    console.log(
+      `Dismissed with role: ${event.detail.role}, split_id: ${split_id}`
+    );
+    if (event.detail.role === 'destructive' && split_id !== undefined) {
       this.splitService.deleteSplit(split_id).subscribe({
         next: () => {
           setTimeout(async () => {
@@ -126,19 +152,23 @@ export class Tab2Page {
         },
         error: (err: any) => {
           console.error('Error deleting split:', err);
-        }
+        },
       });
     }
   }
 
-  async handleEditClick(split_id: number|undefined) {
+  async handleEditClick(split_id: number | undefined) {
     console.log(`Edit split_id: ${split_id}`);
-    this.router.navigate(['/create-split'], { queryParams: { split_id: split_id } });
+    this.router.navigate(['/create-split'], {
+      queryParams: { split_id: split_id },
+    });
   }
 
-  handleStartWorkoutClick(split_id: number|undefined) {
+  handleStartWorkoutClick(split_id: number | undefined) {
     console.log(`Edit split_id: ${split_id}`);
-    this.router.navigate(['/start-workout'], { queryParams: { split_id: split_id } });
+    this.router.navigate(['/start-workout'], {
+      queryParams: { split_id: split_id },
+    });
   }
 
   doRefresh(event: RefresherCustomEvent) {
@@ -146,8 +176,7 @@ export class Tab2Page {
     setTimeout(() => {
       window.location.reload();
       this.isRefreshing = false;
-      event.target.complete(); 
+      event.target.complete();
     }, 1000);
   }
-
 }

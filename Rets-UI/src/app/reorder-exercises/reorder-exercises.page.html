@@ -1,0 +1,35 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="goBack()">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </ion-button>
+    </ion-buttons>
+    <ion-title>Reorder</ion-title>
+    <ion-buttons slot="end">
+      <ion-button (click)="saveOrder()">
+        Save
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" class="">
+  <ion-list>
+    <ion-reorder-group [disabled]="false" (ionItemReorder)="handleReorderEnd($event)">
+      <ion-item  *ngFor="let exercise of selectedExercises" lines="none" class="ion-activatable ripple-parent rounded-rectangle" >
+        <ion-ripple-effect></ion-ripple-effect>
+        <div class="flex items-center py-3 w-full">
+          <ion-thumbnail slot="start" class="circle-thumb mr-3 w-full">
+            <img [src]="'./assets/exercises/' + exercise.Exercise_image" alt="{{ exercise.Exercise_name }}"/>
+          </ion-thumbnail>
+          <ion-label class="">
+            <h2 class="pr-2">{{ exercise.Exercise_name }}</h2>
+            <p>{{ exercise.muscleGroup }}</p>
+          </ion-label>
+        </div>
+        <ion-reorder slot="end"></ion-reorder>
+      </ion-item>
+    </ion-reorder-group>
+  </ion-list>
+</ion-content>

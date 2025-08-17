@@ -472,6 +472,12 @@ export class StartWorkoutPage implements OnInit {
         data: {
           action: 'reorder',
         },
+        handler: () => {
+          console.log('Reorder Exercises of Split : ', this.splitId);
+          this.navCtrl.navigateForward('/reorder-exercises', {
+            queryParams: { split_id: this.splitId },
+          });
+        },
       },
       {
         text: 'Delete Exercise\u00A0\u00A0',
@@ -633,34 +639,6 @@ export class StartWorkoutPage implements OnInit {
       }
     });
   }
-
-  // async openModal(exerciseId: string) {
-  //   const modal = await this.modalCtrl.create({
-  //     component: ReplaceExerciseModal,
-  //     componentProps: {
-  //       exerciseId: exerciseId,
-  //     },
-  //   });
-  //   modal.present();
-  //   const { data, role } = await modal.onWillDismiss();
-  //   if (role === 'confirm') {
-  //     console.log('Modal confirmed with data:', data);
-  //     if (!this.selectedExerciseIds.has(data)) {
-  //       this.selectedExerciseIds.delete(exerciseId);
-  //       this.selectionTimestamps.delete(exerciseId);
-  //       this.selectedExerciseIds.add(data);
-  //       var emptySet: any = { weight: 0, reps: 0, time: '0' };
-  //       if (!this.lastSessionData[data]) {
-  //         this.lastSessionData[data] = [];
-  //         this.setInputs[data] = [];
-  //       }
-  //       Array.from({ length: 3 }).forEach((_, i) => {
-  //         this.lastSessionData[data].push({ ...emptySet });
-  //         this.setInputs[data].push({ ...emptySet });
-  //       });
-  //     }
-  //   }
-  // }
   
   async openModal(exerciseId: string) {
     const modal = await this.modalCtrl.create({

@@ -21,6 +21,22 @@ const routes: Routes = [
   {
     path: 'start-workout',
     loadChildren: () => import('./start-workout/start-workout.module').then( m => m.StartWorkoutPageModule)
+  },
+  {
+    path: 'home-page',
+    loadChildren: () => import('./home-page/home-page.module').then( m => m.HomePagePageModule)
+  },
+  {
+    path: 'splits-page',
+    loadChildren: () => import('./splits-page/splits-page.module').then( m => m.SplitsPagePageModule)
+  },
+  {
+    path: 'profile-page',
+    loadChildren: () => import('./profile-page/profile-page.module').then( m => m.ProfilePagePageModule)
+  },
+  {
+    path: 'reorder-exercises',
+    loadChildren: () => import('./reorder-exercises/reorder-exercises.module').then( m => m.ReorderExercisesPageModule)
   }
 ];
 @NgModule({
