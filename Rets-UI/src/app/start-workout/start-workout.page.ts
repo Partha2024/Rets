@@ -465,20 +465,20 @@ export class StartWorkoutPage implements OnInit {
           action: 'replace',
         },
       },
-      {
-        text: 'Reorder Exercise',
-        role: 'reorder',
-        icon: 'swap-vertical-outline',
-        data: {
-          action: 'reorder',
-        },
-        handler: () => {
-          console.log('Reorder Exercises of Split : ', this.splitId);
-          this.navCtrl.navigateForward('/reorder-exercises', {
-            queryParams: { split_id: this.splitId },
-          });
-        },
-      },
+      // {
+      //   text: 'Reorder Exercise',
+      //   role: 'reorder',
+      //   icon: 'swap-vertical-outline',
+      //   data: {
+      //     action: 'reorder',
+      //   },
+      //   handler: () => {
+      //     console.log('Reorder Exercises of Split : ', this.splitId);
+      //     this.navCtrl.navigateForward('/reorder-exercises', {
+      //       queryParams: { split_id: this.splitId },
+      //     });
+      //   },
+      // },
       {
         text: 'Delete Exercise\u00A0\u00A0',
         role: 'destructive',
@@ -569,10 +569,7 @@ export class StartWorkoutPage implements OnInit {
             } else {
               this.lastWorkoutSession = session;
               console.log('lastWorkoutSession', session);
-              const exerciseMap = new Map<
-                string,
-                { exerciseId: string; setData: any[] }
-              >();
+              const exerciseMap = new Map<string,{ exerciseId: string; setData: any[] }>();
               session.exerciseLogs.forEach((log) => {
                 const id = log.exerciseId;
                 const existing = exerciseMap.get(id);
@@ -690,19 +687,15 @@ export class StartWorkoutPage implements OnInit {
     }
   }
 
-  // get selectedExercises() {
-  //   return this.exercises.filter((ex) =>
-  //     this.selectedExerciseIds.has(ex.Exercise_id)
-  //   );
-  // }
-  // get selectedExercises() {
-  //   return this.exercises.filter(ex =>
-  //     Array.from(this.selectedExerciseIds).some(
-  //       (e: any) => e.exerciseId === ex.Exercise_id
-  //     )
-  //   );
-  // }
   get selectedExercises() {
+
+    const orderMap = new Map<string, number>();
+    for (const e of this.selectedExerciseIds) {
+      console.log('e : ', e);
+      orderMap.set(e.exerciseId, e.sortOrder ?? 0);
+    }
+    console.log('orderMap : ', orderMap);
+
     return this.exercises
       .filter(ex =>
         Array.from(this.selectedExerciseIds).some(
@@ -721,7 +714,22 @@ export class StartWorkoutPage implements OnInit {
         return orderA - orderB;
       });
   }
+  
 
+  // get selectedExercises() {
+  //   const orderMap = new Map<string, number>();
+  //   for (const e of this.selectedExerciseIds) {
+  //     orderMap.set(e.exerciseId, e.sortOrder ?? 0);
+  //   }
+
+  //   return this.exercises
+  //     .filter(ex => orderMap.has(ex.Exercise_id))
+  //     .map(ex => ({
+  //       ...ex,
+  //       sortOrder: orderMap.get(ex.Exercise_id) ?? 0, 
+  //     }))
+  //     .sort((a, b) => a.sortOrder - b.sortOrder);
+  // }
 
   goBack() {
     this.navCtrl.back();
@@ -827,20 +835,6 @@ export class StartWorkoutPage implements OnInit {
     this.setInputs[exerciseId].splice(setNumber, 1);
   }
 
-  // editActionHandler(
-  //   event: CustomEvent<OverlayEventDetail>,
-  //   exerciseId: string
-  // ) {
-  //   if (event.detail.role === 'destructive') {
-  //     this.selectedExerciseIds.delete(exerciseId);
-  //     this.selectionTimestamps.delete(exerciseId);
-  //   } else if (event.detail.role === 'replace') {
-  //     console.log('replace clicked');
-  //   } else if (event.detail.role === 'reorder') {
-  //     console.log('reorder clicked');
-  //   }
-  // }
-
   editActionHandler(event: CustomEvent<OverlayEventDetail>, exerciseId: string) {
     if (event.detail.role === 'destructive') {
       const toDelete = Array.from(this.selectedExerciseIds).find(
@@ -865,14 +859,6 @@ export class StartWorkoutPage implements OnInit {
     this.modal.dismiss(null, 'cancel');
   }
 
-  // confirm() {
-  //   this.modal.dismiss(null, 'confirm');
-  //   this.editSelectedExerciseIds.forEach((id) => {
-  //     if (!this.selectedExerciseIds.has(id)) {
-  //       this.selectedExerciseIds.add(id);
-  //     }
-  //   });
-  // }
   confirm() {
     this.modal.dismiss(null, 'confirm');
     this.editSelectedExerciseIds.forEach((id) => {
@@ -894,33 +880,6 @@ export class StartWorkoutPage implements OnInit {
     }
   }
 
-  // toggleExerciseSelection(id: string) {
-  //   console.log("toggle : ", this.selectedExerciseIds)
-  //   if (this.selectedExerciseIds.has(id)) {
-  //     this.selectedExerciseIds.delete(id);
-  //     this.selectionTimestamps.delete(id);
-  //   } else {
-  //     if(this.lastSessionData[id]) {
-  //       this.setInputs[id] = [];
-  //       this.lastSessionData[id].forEach((set) => {
-  //         var tempSet: any = { weight: set.weight, reps: set.reps, time: set.time };
-  //         this.setInputs[id].push({ ...tempSet });
-  //       })
-  //     }else{
-  //       var emptySet: any = { weight: 0, reps: 0, time: "0" };
-  //       if (!this.lastSessionData[id]) {
-  //         this.lastSessionData[id] = [];
-  //         this.setInputs[id] = [];
-  //       }
-  //       Array.from({ length: 3 }).forEach((_, i) => {
-  //         this.lastSessionData[id].push({...emptySet});
-  //         this.setInputs[id].push({ ...emptySet });
-  //       });
-  //     }
-  //     this.editSelectedExerciseIds.add(id);
-  //     this.selectionTimestamps.set(id, Date.now());
-  //   }
-  // }
   toggleExerciseSelection(id: string) {
     console.log('toggle : ', this.selectedExerciseIds);
     const existing = Array.from(this.selectedExerciseIds).find(
@@ -958,9 +917,6 @@ export class StartWorkoutPage implements OnInit {
     }
   }
 
-  // isSelected(id: string): boolean {
-  //   return this.selectedExerciseIds.has(id);
-  // }
   isSelected(id: string): boolean {
     return Array.from(this.selectedExerciseIds).some(
       (e: any) => e.exerciseId === id
@@ -968,11 +924,9 @@ export class StartWorkoutPage implements OnInit {
   }
 
   get filteredExercises() {
-    return this.exercises
-      .filter((e) =>
+    return this.exercises.filter((e) =>
         e.Exercise_name.toLowerCase().includes(this.searchQuery.toLowerCase())
-      )
-      .sort((a, b) => {
+      ).sort((a, b) => {
         const aTime = this.selectionTimestamps.get(a.Exercise_id);
         const bTime = this.selectionTimestamps.get(b.Exercise_id);
         if (aTime && bTime) {

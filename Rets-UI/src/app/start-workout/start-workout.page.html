@@ -30,10 +30,10 @@
               {{ exercise.Exercise_name }}
             </h2>
           </ion-label>
-          <ion-icon [id]="'open-action-sheet' + j" name="ellipsis-vertical" class="more-icon relative right-[-5px] text-base"></ion-icon>
+          <ion-icon [id]="'open-action-sheet-' + j" name="ellipsis-vertical" class="more-icon relative right-[-5px] text-base"></ion-icon>
           <ion-action-sheet
-            [trigger]="'open-action-sheet' + j"
-            [buttons]="getActionSheetButtons(exercise.Exercise_id)"
+            [trigger]="'open-action-sheet-' + j"
+            [buttons]="getActionSheetButtons(exercise.Exercise_image)"
             (didDismiss)="editActionHandler($event, exercise.Exercise_id)"
           ></ion-action-sheet>
         </ion-item>
