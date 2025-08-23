@@ -15,35 +15,18 @@
       <ion-item lines="full" class="p-0">
         <ion-label class="p-0 m-0 mt-2">
           <h2 class="text-xl"><strong>{{ session.split.splitName }}</strong></h2>
-          <ion-text class="text-sm/7 relative top-[-2px] line" color="medium"
-            >{{ session.startTime | date: 'dd MMMM yy' }}</ion-text
-          >
+          <ion-text class="text-sm/7 relative top-[-2px] line" color="medium">
+            {{ session.startTime | date: 'dd MMMM yy' }}
+          </ion-text>
         </ion-label>
-        <ion-icon
-          [id]="'popover-trigger-' + i"
-          name="ellipsis-vertical"
-          class="more-icon relative right-[-5px] top-[-5px] text-[20px]"
-        ></ion-icon>
-        <ion-popover
-          [trigger]="'popover-trigger-' + i"
-          triggerAction="click"
-          side="bottom"
-          alignment="end"
-        >
-          <ng-template>
-            <ion-content class="">
-              <ion-item button>
-                <ion-label id="delteSplit" color="danger">Delete</ion-label>
-                <ion-alert
-                  trigger="delteSplit"
-                  header="Are you sure ?"
-                  [buttons]="alertButtons"
-                  (didDismiss)="handleDeleteClick($event, session.sessionId)"
-                ></ion-alert>
-              </ion-item>
-            </ion-content>
-          </ng-template>
-        </ion-popover>
+        <ion-icon [id]="'open-action-sheet' + i" name="ellipsis-vertical"
+        class="more-icon relative right-[-5px] top-[-5px] text-[20px]"></ion-icon>
+        <ion-action-sheet
+          [trigger]="'open-action-sheet' + i"
+          [buttons]="getActionSheetButtons()"
+          (didDismiss)="editActionHandler($event, session.sessionId)"
+          id="delteSplit"
+        ></ion-action-sheet>
       </ion-item>
 
       <!-- Volumt & Sets -->

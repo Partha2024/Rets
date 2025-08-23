@@ -447,6 +447,6 @@ export class ReplaceExerciseModal {
 
   removeExerciseById(idToRemove: string | undefined) {
     this.exercises = this.exercises.filter(ex => ex.Exercise_id !== idToRemove);
-    console.log('Exercises after removal:', this.exercises);
+    // console.log('Exercises after removal:', this.exercises);
   }
 }

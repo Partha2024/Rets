@@ -133,38 +133,67 @@ namespace Rets_API.Controllers
       return Ok(session.SessionId);
     }
 
+    // [HttpDelete("deleteWorkoutSession/{sessionId}")]
+    // public IActionResult DeleteWorkoutSession(int sessionId)
+    // {
+    //   _ = Task.Run(async () => await DeleteWorkoutSessionAsync(sessionId));
+    //   return Ok(new { message = "Split created successfully!" });
+    // }
+    // private async Task DeleteWorkoutSessionAsync(int sessionId)
+    // {
+    //   try
+    //   {
+    //     var workoutSession = await _context.WorkoutSessions
+    //       .Include(ws => ws.ExerciseLogs)
+    //       .FirstOrDefaultAsync(ws => ws.SessionId == sessionId);
+
+    //     if (workoutSession == null)
+    //     {
+    //       Console.WriteLine($"Workout Session with ID {sessionId} not found.");
+    //       return;
+    //       // return NotFound(new { message = $"Workout Session with ID {sessionId} not found." });
+    //     }
+    //     _context.ExerciseLogs.RemoveRange(workoutSession.ExerciseLogs);
+    //     _context.WorkoutSessions.Remove(workoutSession);
+    //     _cache.Remove("WorkoutSessions");
+    //     await _context.SaveChangesAsync();
+    //     // return Ok(new { message = $"Workout Session with ID {sessionId} and its logs deleted successfully." });
+    //     Console.WriteLine($"Workout Session with ID {sessionId} and its logs deleted successfully.");
+    //   }
+    //   catch (Exception ex)
+    //   {
+    //     Console.WriteLine($"DeleteWorkoutSession exception: {ex.Message}");
+    //     _cache.Remove("WorkoutSessions");
+    //     // return StatusCode(500, new { error = ex.Message });
+    //   }
+    // }
     [HttpDelete("deleteWorkoutSession/{sessionId}")]
-    public IActionResult DeleteWorkoutSession(int sessionId)
-    {
-      _ = Task.Run(async () => await DeleteWorkoutSessionAsync(sessionId));
-      return Ok(new { message = "Split created successfully!" });
-    }
-    private async Task DeleteWorkoutSessionAsync(int sessionId)
+    public async Task<IActionResult> DeleteWorkoutSession(int sessionId)
     {
       try
       {
         var workoutSession = await _context.WorkoutSessions
-          .Include(ws => ws.ExerciseLogs)
-          .FirstOrDefaultAsync(ws => ws.SessionId == sessionId);
+            .Include(ws => ws.ExerciseLogs)
+            .FirstOrDefaultAsync(ws => ws.SessionId == sessionId);
 
         if (workoutSession == null)
         {
-          Console.WriteLine($"Workout Session with ID {sessionId} not found.");
-          return;
-          // return NotFound(new { message = $"Workout Session with ID {sessionId} not found." });
+          return NotFound(new { message = $"Workout Session with ID {sessionId} not found." });
         }
+
         _context.ExerciseLogs.RemoveRange(workoutSession.ExerciseLogs);
         _context.WorkoutSessions.Remove(workoutSession);
-        _cache.Remove("WorkoutSessions");
         await _context.SaveChangesAsync();
-        // return Ok(new { message = $"Workout Session with ID {sessionId} and its logs deleted successfully." });
-        Console.WriteLine($"Workout Session with ID {sessionId} and its logs deleted successfully.");
+
+        _cache.Remove("WorkoutSessions");
+
+        return Ok(new { message = $"Workout Session with ID {sessionId} and its logs deleted successfully." });
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"DeleteWorkoutSession exception: {ex.Message}");
+        // Log ex
         _cache.Remove("WorkoutSessions");
-        // return StatusCode(500, new { error = ex.Message });
+        return StatusCode(500, new { error = ex.Message });
       }
     }
   }

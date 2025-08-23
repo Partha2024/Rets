@@ -1,15 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import {
-  WorkoutService,
-  workoutSession,
-} from '../services/workoutSession.service';
+import { WorkoutService, workoutSession } from '../services/workoutSession.service';
 import { OverlayEventDetail } from '@ionic/core';
-import {
-  PopoverController,
-  ToastController,
-  RefresherCustomEvent,
-} from '@ionic/angular';
+import { PopoverController, ToastController, RefresherCustomEvent, AlertController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home-page',
@@ -435,10 +428,55 @@ export class HomePagePage implements OnInit {
     },
   ];
 
+  getActionSheetButtons() {
+    return [
+      {
+        text: 'Delete Split',
+        role: 'destructive',
+        icon: 'trash-outline',
+        data: { action: 'delete' },
+      },
+      {
+        text: 'Cancel',
+        role: 'cancel',
+        data: {
+          action: 'cancel',
+        },
+      },
+    ];
+  }
+
+  editActionHandler(event: CustomEvent<OverlayEventDetail>, sessionId: number | undefined) {
+    if (event.detail.role === 'destructive') {
+      console.log('Delete Session Clicked');
+      this.presentDeleteAlert(event, sessionId);
+    }
+  }
+
+  async presentDeleteAlert(event: CustomEvent<OverlayEventDetail>, sessionId: number | undefined) {
+    const alert = await this.alertController.create({
+      header: 'Are you sure?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Delete',
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.handleDeleteClick(event, sessionId);
+          },
+        },
+      ],
+    });
+    await alert.present();
+  }
+
   constructor(
     private workoutService: WorkoutService,
-    private popoverController: PopoverController,
-    private toastController: ToastController
+    private toastController: ToastController,
+    private alertController: AlertController,
   ) {}
 
   public alertButtons = [
@@ -513,15 +551,11 @@ export class HomePagePage implements OnInit {
     });
   }
 
-  async handleDeleteClick(
-    event: CustomEvent<OverlayEventDetail>,
-    sessionId: number | undefined
-  ) {
-    await this.popoverController.dismiss();
+  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, sessionId: number | undefined) {
     console.log(
       `Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`
     );
-    if (event.detail.role === 'confirm' && sessionId !== undefined) {
+    if (event.detail.role === 'destructive' && sessionId !== undefined) {
       this.workoutService.deleteWorkoutSession(sessionId).subscribe({
         next: async () => {
           console.log(`Deleted session with id: ${sessionId}`);
@@ -532,12 +566,9 @@ export class HomePagePage implements OnInit {
             position: 'bottom',
           });
           await toast.present();
-          this.workoutSessions = this.workoutSessions.filter(
-            (session) => session.sessionId !== sessionId
-          );
-          this.groupedSessions = this.groupedSessions.filter(
-            (session) => session.sessionId !== sessionId
-          );
+          setTimeout(() => {
+            window.location.reload();
+          },200)
         },
         error: (err) => {
           console.error('Error deleting session:', err);

@@ -33,7 +33,7 @@
           <ion-icon [id]="'open-action-sheet-' + j" name="ellipsis-vertical" class="more-icon relative right-[-5px] text-base"></ion-icon>
           <ion-action-sheet
             [trigger]="'open-action-sheet-' + j"
-            [buttons]="getActionSheetButtons(exercise.Exercise_image)"
+            [buttons]="getActionSheetButtons(exercise.Exercise_id)"
             (didDismiss)="editActionHandler($event, exercise.Exercise_id)"
           ></ion-action-sheet>
         </ion-item>
@@ -108,7 +108,7 @@
     <!-- Add Exercise and Discard Workout Buttons -->
     <div class="flex justify-evenly items-center mb-4">
       <!-- add exercise button -->
-      <ion-button id="open-modal" expand="block" size="small" class="m-y h-[45px] w-[170px] text-base font-semibold" fill="outline" (click)="addExercise()">
+      <ion-button id="open-modal" expand="block" size="small" class="m-y h-[45px] w-[170px] text-base font-semibold" fill="outline">
         <ion-icon class="mr-2" name="add-outline"></ion-icon> Add Exercise
       </ion-button>
       <ion-modal trigger="open-modal" (willDismiss)="onWillDismiss($event)">
