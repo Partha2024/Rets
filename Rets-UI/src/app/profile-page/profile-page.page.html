@@ -9,13 +9,22 @@
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
   
-  <ion-card class="m-0 rounded-none">
-    <ion-list [inset]="true">
-      <ion-item lines="full" class="p-0">
-        <ion-label class="p-0 m-0 mt-2">
-          > Profile
+  <ion-card class="m-2 p-2 rounded-none" *ngIf="((timings$ | async)?.length || 0) > 0; else noSessions">
+    <ion-list>
+      <ion-item *ngFor="let t of (timings$ | async)" lines="none">
+        <ion-label>
+          <h2>{{ t.method }}</h2>
+          <h3>{{ t.url }}</h3>
+          <p class="flex gap-1 text-sm/7 text-medium items-center">
+            <span [attr.class]="t.status == 200 ? 'text-green-500' : 'text-red-500'">{{ t.status }}</span> • <span class="text-white">{{ t.durationMs }} ms</span> • <span>{{ t.at | date:'shortTime' }}</span>
+          </p>
         </ion-label>
       </ion-item>
     </ion-list>
   </ion-card>
+  <ng-template #noSessions>
+    <div class="ion-padding text-center">
+        <p color="medium">No API Requests Found</p>
+    </div>
+  </ng-template>
 </ion-content>

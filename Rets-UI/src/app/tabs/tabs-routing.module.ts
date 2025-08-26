@@ -15,13 +15,9 @@ const routes: Routes = [
         path: 'splits',
         loadChildren: () => import('../splits-page/splits-page-routing.module').then(m => m.SplitsPagePageRoutingModule)
       },
-      // {
-      //   path: 'profile',
-      //   loadChildren: () => import('../profile-page/profile-page-routing.module').then(m => m.ProfilePagePageRoutingModule)
-      // },
       {
         path: 'profile',
-        loadChildren: () => import('../reorder-exercises/reorder-exercises-routing.module').then(m => m.ReorderExercisesPageRoutingModule)
+        loadChildren: () => import('../profile-page/profile-page-routing.module').then(m => m.ProfilePagePageRoutingModule)
       },
       {
         path: '',
