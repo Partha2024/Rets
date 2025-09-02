@@ -169,6 +169,8 @@ namespace Rets_API.Controllers
       existingSplit.SplitName = splitDto.SplitName;
       existingSplit.DefaultDay = splitDto.DefaultDay;
 
+      _context.Entry(existingSplit).Property(e => e.SplitName).IsModified = true;
+      _context.Entry(existingSplit).Property(e => e.DefaultDay).IsModified = true;
       _context.SplitExercises.RemoveRange(existingSplit.SplitExercises);
 
       existingSplit.SplitExercises = splitDto.ExerciseIds.Select(e => new SplitExercise

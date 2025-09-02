@@ -74,7 +74,7 @@
                 </div>
                 <!-- Weight -->
                 <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
-                  <ion-input type="number" (ionInput)="limitLength($event, 3)" aria-label="Number input" [value]="" [placeholder]="lastSessionData[exercise.Exercise_id][i].weight" [(ngModel)]="setInputs[exercise.Exercise_id][i].weight"></ion-input>
+                  <ion-input type="number" (ionInput)="limitLength($event, 4)" aria-label="Number input" [value]="" [placeholder]="lastSessionData[exercise.Exercise_id][i].weight" [(ngModel)]="setInputs[exercise.Exercise_id][i].weight"></ion-input>
                 </div>
                 <!-- Reps -->
                 <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Bodyweight Reps' || exercise.Exercise_type === 'Weighted Reps'">
@@ -82,7 +82,7 @@
                 </div>
                 <!-- Time -->
                 <div class="reps w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
-                  <ion-input (ionInput)="limitLength($event, 3)" aria-label="Number input" type="number" [placeholder]="lastSessionData[exercise.Exercise_id][i].time" [(ngModel)]="setInputs[exercise.Exercise_id][i].time"></ion-input>
+                  <ion-input (ionInput)="limitLength($event, 4)" aria-label="Number input" type="number" [placeholder]="lastSessionData[exercise.Exercise_id][i].time" [(ngModel)]="setInputs[exercise.Exercise_id][i].time"></ion-input>
                 </div>
                 <div>
                   <ion-checkbox slot="end" class="w-6"></ion-checkbox>
