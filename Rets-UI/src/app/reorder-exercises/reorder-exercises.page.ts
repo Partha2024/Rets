@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { ItemReorderCustomEvent } from '@ionic/angular';
+import { ItemReorderCustomEvent, LoadingController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Split, SplitExercise, SplitService } from '../services/split.service';
 import { NavController, ToastController } from '@ionic/angular';
@@ -18,6 +18,7 @@ export class ReorderExercisesPage implements OnInit {
     private splitService: SplitService,
     private navCtrl: NavController,
     private toastController: ToastController,
+    private loadingController: LoadingController
   ) {}
 
   exercises = [
@@ -494,7 +495,13 @@ export class ReorderExercisesPage implements OnInit {
     // console.log('Order After Moving:', this.exerciseArray);
   }
 
-  saveOrder(){
+  async saveOrder(){
+    const loading = await this.loadingController.create({
+      message: 'Updating Split',
+      spinner: 'crescent'
+    });
+    await loading.present();
+
     const updatedExercises: SplitExercise[] = this.exerciseArray.map((exerciseId, index) => ({
       exerciseId: exerciseId,
       sortOrder: index + 1
@@ -515,6 +522,7 @@ export class ReorderExercisesPage implements OnInit {
           duration: 3000,
           color: 'success',
           position: 'bottom',
+          swipeGesture: 'vertical'
         });
         await toast.present();
         this.navCtrl.back();
@@ -529,9 +537,13 @@ export class ReorderExercisesPage implements OnInit {
           duration: 3000,
           color: 'danger',
           position: 'bottom',
+          swipeGesture: 'vertical'
         });
         await toast.present();
       },
+      complete: async () => {
+        await loading.dismiss();
+      }
     });
   }
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { NavController, ToastController } from '@ionic/angular';
+import { NavController, ToastController, LoadingController } from '@ionic/angular';
 import { ExerciseService, Exercise } from '../services/exercise.service';
 import { SplitService, Split, SplitExercise } from '../services/split.service';
 import { ActivatedRoute } from '@angular/router';
@@ -444,7 +444,8 @@ export class CreateSplitPage implements OnInit {
     private navCtrl: NavController,
     private toastController: ToastController,
     private exerciseService: ExerciseService,
-    private splitService: SplitService
+    private splitService: SplitService,
+    private loadingController: LoadingController
   ) {}
 
   ngOnInit(): void {
@@ -537,6 +538,7 @@ export class CreateSplitPage implements OnInit {
         duration: 3000,
         color: 'danger',
         position: 'bottom',
+        swipeGesture: 'vertical'
       });
       await toast.present();
       return;
@@ -548,6 +550,7 @@ export class CreateSplitPage implements OnInit {
         duration: 3000,
         color: 'danger',
         position: 'bottom',
+        swipeGesture: 'vertical'
       });
       await toast.present();
       return;
@@ -559,6 +562,7 @@ export class CreateSplitPage implements OnInit {
         duration: 3000,
         color: 'danger',
         position: 'bottom',
+        swipeGesture: 'vertical'
       });
       await toast.present();
       return;
@@ -575,6 +579,11 @@ export class CreateSplitPage implements OnInit {
 
     // subscription to create or update split
     if(this.splitId){
+        const loading = await this.loadingController.create({
+          message: 'Updating Split',
+          spinner: 'crescent'
+        });
+        await loading.present();
         this.splitService.updateSplit(this.splitId, splitData).subscribe({
         next: async (res) => {
           console.log('Split Updated:', res);
@@ -583,6 +592,7 @@ export class CreateSplitPage implements OnInit {
             duration: 3000,
             color: 'success',
             position: 'bottom',
+            swipeGesture: 'vertical'
           });
           await toast.present();
           this.navCtrl.back();
@@ -597,11 +607,20 @@ export class CreateSplitPage implements OnInit {
             duration: 3000,
             color: 'danger',
             position: 'bottom',
+            swipeGesture: 'vertical'
           });
           await toast.present();
         },
+        complete: async () => {
+          await loading.dismiss();
+        }
       });
     }else{
+      const loading = await this.loadingController.create({
+        message: 'Creating Split',
+        spinner: 'crescent'
+      });
+      await loading.present();
       this.splitService.createSplit(splitData).subscribe({
         next: async (res) => {
           console.log('Split created:', res);
@@ -610,6 +629,7 @@ export class CreateSplitPage implements OnInit {
             duration: 3000,
             color: 'success',
             position: 'bottom',
+            swipeGesture: 'vertical'
           });
           await toast.present();
           this.navCtrl.back();
@@ -624,9 +644,13 @@ export class CreateSplitPage implements OnInit {
             duration: 3000,
             color: 'danger',
             position: 'bottom',
+            swipeGesture: 'vertical'
           });
           await toast.present();
         },
+        complete: async () => {
+          await loading.dismiss();
+        }
       });
     }
   }

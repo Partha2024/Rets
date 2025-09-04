@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
-import { AlertController, RefresherCustomEvent, ToastController, NavController } from '@ionic/angular';
+import { AlertController, RefresherCustomEvent, ToastController, NavController, LoadingController } from '@ionic/angular';
 import type { OverlayEventDetail } from '@ionic/core';
 
 @Component({
@@ -22,6 +22,7 @@ export class SplitsPagePage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private navCtrl: NavController,
+    private loadingController: LoadingController
   ) {}
 
   loadSplits(): void {
@@ -129,14 +130,14 @@ export class SplitsPagePage implements OnInit {
     }
   }
 
-  async handleDeleteClick(
-    event: CustomEvent<OverlayEventDetail>,
-    split_id: number | undefined
-  ) {
-    console.log(
-      `Dismissed with role: ${event.detail.role}, split_id: ${split_id}`
-    );
+  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, split_id: number | undefined) {
+    console.log(`Dismissed with role: ${event.detail.role}, split_id: ${split_id}`);
     if (event.detail.role === 'destructive' && split_id !== undefined) {
+      const loading = await this.loadingController.create({
+        message: 'Deleting Split',
+        spinner: 'crescent'
+      });
+      await loading.present();
       this.splitService.deleteSplit(split_id).subscribe({
         next: () => {
           setTimeout(async () => {
@@ -145,6 +146,7 @@ export class SplitsPagePage implements OnInit {
               duration: 3000,
               color: 'success',
               position: 'bottom',
+              swipeGesture: 'vertical'
             });
             await toast.present();
           }, 1000);
@@ -153,6 +155,9 @@ export class SplitsPagePage implements OnInit {
         error: (err: any) => {
           console.error('Error deleting split:', err);
         },
+        complete: async () => {
+          await loading.dismiss();
+        }
       });
     }
   }

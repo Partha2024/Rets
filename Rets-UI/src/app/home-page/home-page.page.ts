@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { WorkoutService, workoutSession } from '../services/workoutSession.service';
 import { OverlayEventDetail } from '@ionic/core';
-import { PopoverController, ToastController, RefresherCustomEvent, AlertController } from '@ionic/angular';
+import { PopoverController, ToastController, RefresherCustomEvent, AlertController, LoadingController } from '@ionic/angular';
 
 @Component({
   selector: 'app-home-page',
@@ -477,6 +477,7 @@ export class HomePagePage implements OnInit {
     private workoutService: WorkoutService,
     private toastController: ToastController,
     private alertController: AlertController,
+    private loadingController: LoadingController
   ) {}
 
   public alertButtons = [
@@ -552,9 +553,12 @@ export class HomePagePage implements OnInit {
   }
 
   async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, sessionId: number | undefined) {
-    console.log(
-      `Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`
-    );
+    const loading = await this.loadingController.create({
+      message: 'Deleting Session',
+      spinner: 'crescent'
+    });
+    await loading.present();
+    console.log(`Dismissed with role: ${event.detail.role}, sessionId: ${sessionId}`);
     if (event.detail.role === 'destructive' && sessionId !== undefined) {
       this.workoutService.deleteWorkoutSession(sessionId).subscribe({
         next: async () => {
@@ -564,6 +568,7 @@ export class HomePagePage implements OnInit {
             duration: 3000,
             color: 'success',
             position: 'bottom',
+            swipeGesture: 'vertical'
           });
           await toast.present();
           setTimeout(() => {
@@ -573,6 +578,9 @@ export class HomePagePage implements OnInit {
         error: (err) => {
           console.error('Error deleting session:', err);
         },
+        complete: async () => {
+          await loading.dismiss();
+        }
       });
     }
   }
