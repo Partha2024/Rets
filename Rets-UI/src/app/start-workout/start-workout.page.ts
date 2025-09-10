@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
-import { NavController, ToastController, RefresherCustomEvent, LoadingController } from '@ionic/angular';
+import { NavController, ToastController, RefresherCustomEvent, LoadingController, AlertController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { SplitExercise, SplitService } from '../services/split.service';
 import { WorkoutService, lastWorkoutSession } from '../services/workoutSession.service';
@@ -463,7 +463,8 @@ export class StartWorkoutPage implements OnInit {
     private workoutService: WorkoutService,
     private modalCtrl: ModalController,
     private cdr: ChangeDetectorRef,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
+    private alertController: AlertController,
   ) {}
 
   groupedSessions: any[] = [];
@@ -938,13 +939,33 @@ export class StartWorkoutPage implements OnInit {
     }
   }
 
-  doRefresh(event: RefresherCustomEvent) {
+  async doRefresh(event: RefresherCustomEvent) {
     this.isRefreshing = true;
-    setTimeout(() => {
-      window.location.reload();
-      this.isRefreshing = false;
-      event.target.complete();
-    }, 1000);
+    const alert = await this.alertController.create({
+      header: 'Are You Sure?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+          handler: () => {
+            this.isRefreshing = false;
+            event.target.complete();
+          },
+        },
+        {
+          text: 'Yes',
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            setTimeout(() => {
+              window.location.reload();
+              this.isRefreshing = false;
+              event.target.complete();
+            }, 500);
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   addMoreSets(exerciseId: string) {
@@ -1095,8 +1116,24 @@ export class StartWorkoutPage implements OnInit {
       });
   }
 
-  goBack() {
-    this.navCtrl.back();
+  async goBack() {
+    const alert = await this.alertController.create({
+      header: 'Are You Sure?',
+      buttons: [
+        {
+          text: 'Cancel',
+          role: 'cancel',
+        },
+        {
+          text: 'Yes',
+          cssClass: 'alert-button-confirm',
+          handler: () => {
+            this.navCtrl.back();
+          },
+        },
+      ],
+    });
+    await alert.present();
   }
 
   convertTimeToSeconds(timeStr: string): number {
