@@ -10,6 +10,7 @@ export class TimingInterceptor implements HttpInterceptor {
 
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const start = performance.now();
+    const id = this.timing.start(req); // Start tracking
     let status: number | 'ERR' = 'ERR';
 
     return next.handle(req).pipe(
@@ -20,13 +21,7 @@ export class TimingInterceptor implements HttpInterceptor {
       }),
       finalize(() => {
         const duration = Math.round(performance.now() - start);
-        this.timing.add({
-          url: req.urlWithParams,
-          method: req.method,
-          status,
-          durationMs: duration,
-          at: Date.now()
-        });
+        this.timing.complete(id, status, duration); // Complete tracking
       })
     );
   }

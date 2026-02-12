@@ -15,7 +15,15 @@
         <span class="text-white text-base">{{ t.method }}</span>
         <h3>{{ t.url }}</h3>
         <p class="flex gap-1 text-sm/7 text-medium items-center">
-          <span [attr.class]="t.status == 200 ? 'text-green-500' : 'text-red-500'">{{ t.status }}</span> • <span class="text-white">{{ t.durationMs }} ms</span> • <span>{{ t.at | date:'shortTime' }}</span>
+          <span [class.text-green-500]="t.status === 200"
+                [class.text-red-500]="t.status !== 200 && t.status !== 'PENDING'"
+                [class.text-yellow-500]="t.status === 'PENDING'">
+            {{ t.status }}
+          </span>
+           • <span class="text-white">
+              <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
+           </span>
+           • <span>{{ t.at | date:'shortTime' }}</span>
         </p>
       </ion-label>
     </ion-card>

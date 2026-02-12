@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { ProfilePagePageRoutingModule } from './profile-page-routing.module';
 
 import { ProfilePagePage } from './profile-page.page';
+import { LiveDurationComponent } from './components/live-duration.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { ProfilePagePage } from './profile-page.page';
     IonicModule,
     ProfilePagePageRoutingModule
   ],
-  declarations: [ProfilePagePage]
+  declarations: [ProfilePagePage, LiveDurationComponent]
 })
 export class ProfilePagePageModule {}

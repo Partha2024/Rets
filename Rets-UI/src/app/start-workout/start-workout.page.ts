@@ -1,5 +1,6 @@
 import { Component, OnInit, ViewChild, ChangeDetectionStrategy, ChangeDetectorRef, Input } from '@angular/core';
-import { NavController, ToastController, RefresherCustomEvent, LoadingController, AlertController } from '@ionic/angular';
+import { NavController, ToastController, RefresherCustomEvent, LoadingController, AlertController, Platform, IonRouterOutlet } from '@ionic/angular';
+import { Subscription } from 'rxjs';
 import { ActivatedRoute } from '@angular/router';
 import { SplitExercise, SplitService } from '../services/split.service';
 import { WorkoutService, lastWorkoutSession } from '../services/workoutSession.service';
@@ -33,6 +34,7 @@ export class StartWorkoutPage implements OnInit {
       weight?: number;
       reps?: number;
       time?: string;
+      completed?: boolean;
     }[];
   } = {};
 
@@ -465,6 +467,8 @@ export class StartWorkoutPage implements OnInit {
     private cdr: ChangeDetectorRef,
     private loadingController: LoadingController,
     private alertController: AlertController,
+    private platform: Platform,
+    private routerOutlet: IonRouterOutlet,
   ) {}
 
   groupedSessions: any[] = [];
@@ -477,6 +481,7 @@ export class StartWorkoutPage implements OnInit {
   searchQuery = '';
   selectionTimestamps: Map<string, number> = new Map();
   editSelectedExerciseIds: Set<string> = new Set();
+  private backButtonSubscription?: Subscription;
 
   // Cached derived data to avoid getter recomputation
   selectedExercises: ExerciseWithOrder[] = [];
@@ -750,6 +755,7 @@ export class StartWorkoutPage implements OnInit {
                   weight: undefined as number | undefined,
                   reps: undefined as number | undefined,
                   time: undefined as string | undefined,
+                  completed: false,
                 }));
                 this.setInputs[id] = setInputsForExercise;
               });
@@ -762,6 +768,18 @@ export class StartWorkoutPage implements OnInit {
         });
       }
     });
+  }
+
+  ionViewDidEnter() {
+    this.routerOutlet.swipeGesture = false;
+    this.backButtonSubscription = this.platform.backButton.subscribeWithPriority(9999, () => {
+      this.goBack();
+    });
+  }
+
+  ionViewWillLeave() {
+    this.routerOutlet.swipeGesture = true;
+    this.backButtonSubscription?.unsubscribe();
   }
 
   // Build selectedExercises once per relevant change
@@ -1119,6 +1137,7 @@ export class StartWorkoutPage implements OnInit {
   async goBack() {
     const alert = await this.alertController.create({
       header: 'Are You Sure?',
+      message: 'Do you really want to exit the workout session?',
       buttons: [
         {
           text: 'Cancel',
@@ -1139,5 +1158,29 @@ export class StartWorkoutPage implements OnInit {
   convertTimeToSeconds(timeStr: string): number {
     const [minutes, seconds] = timeStr.split(':').map(Number);
     return minutes * 60 + seconds;
+  }
+
+  checkSetCompletion(exerciseId: string, index: number, type: string) {
+    setTimeout(() => {
+      const set = this.setInputs[exerciseId][index];
+      if (!set) return;
+
+      let isCompleted = false;
+
+      if (type === 'Weighted Reps') {
+        const w = Number(set.weight);
+        const r = Number(set.reps);
+        isCompleted = w > 0 && r > 0;
+      } else if (type === 'Bodyweight Reps') {
+        const r = Number(set.reps);
+        isCompleted = r > 0;
+      } else if (type === 'Bodyweight Timed') {
+        const t = Number(set.time);
+        isCompleted = t > 0;
+      }
+
+      set.completed = isCompleted;
+      this.cdr.detectChanges();
+    }, 0);
   }
 }
