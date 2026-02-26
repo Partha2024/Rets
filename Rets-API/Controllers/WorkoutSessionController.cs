@@ -72,13 +72,13 @@ namespace Rets_API.Controllers
             _ = Task.Run(async () =>
             {
                 var fresh = await GetWorkoutSessionsFromDb();
-                await _cacheService.SetAsync(key, fresh, TimeSpan.FromMinutes(10));
+                await _cacheService.SetAsync(key, fresh, TimeSpan.FromDays(2));
             });
             return Ok(cached);
         }
 
         var data = await GetWorkoutSessionsFromDb();
-        await _cacheService.SetAsync(key, data, TimeSpan.FromMinutes(10));
+        await _cacheService.SetAsync(key, data, TimeSpan.FromDays(2));
 
         return Ok(data);
     }
@@ -163,7 +163,7 @@ namespace Rets_API.Controllers
           return Ok(cached);
       }
       var result = await GetLastSessionFromDb(splitId);
-      await _cacheService.SetAsync(key, result, TimeSpan.FromMinutes(10));
+      await _cacheService.SetAsync(key, result, TimeSpan.FromDays(2));
       return Ok(result);
     }
 
