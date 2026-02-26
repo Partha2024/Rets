@@ -1,78 +1,163 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Home</ion-title>
-  </ion-toolbar>
-</ion-header>
-
-<ion-content *ngIf="workoutSessions.length > 0; else noSessions">
-  <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
-    <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
-  
-  <ion-card class="m-0 rounded-none">
-    <ion-list [inset]="true" *ngFor="let session of workoutSessions; let i = index">
-      <!-- Header - Split Name & Menu Icon -->
-      <ion-item lines="full" class="p-0">
-        <ion-label class="p-0 m-0 mt-2">
-          <h2 class="text-xl"><strong>{{ session.split.splitName }}</strong></h2>
-          <ion-text class="text-sm/7 relative top-[-2px] line" color="medium">
-            {{ session.startTime | date: 'dd MMMM yy' }}
-          </ion-text>
-        </ion-label>
-        <ion-icon [id]="'open-action-sheet' + i" name="ellipsis-vertical"
-        class="more-icon relative right-[-5px] top-[-5px] text-[20px]"></ion-icon>
-        <ion-action-sheet
-          [trigger]="'open-action-sheet' + i"
-          [buttons]="getActionSheetButtons()"
-          (didDismiss)="editActionHandler($event, session.sessionId)"
-          id="delteSplit"
-        ></ion-action-sheet>
-      </ion-item>
-
-      <!-- Volumt & Sets -->
-      <ion-item class="top-[-8px]" lines="inset">
-        <div class="w-[95px]">
-          <ion-input
-            [readonly]="true"
-            labelPlacement="stacked"
-            [value]="groupedSessions[i].totalVolume+' Kg'"
-          >
-            <div slot="label"><ion-text color="medium">Volume</ion-text></div>
-          </ion-input>
-        </div>
-        <div class="w-[95px]">
-          <ion-input
-            [readonly]="true"
-            labelPlacement="stacked"
-            [value]="groupedSessions[i].totalSets"
-          >
-            <div slot="label"><ion-text color="medium">Sets</ion-text></div>
-          </ion-input>
-        </div>
-      </ion-item>
-
-      <!-- Exercises and number of Sets -->
-      <ion-item-group
-        *ngFor="let session of groupedSessions[i].exercises"
-        class="pb-2"
-      >
-        <ion-item [button]="true" detail="false" lines="none" class="mb-2">
-          <ion-thumbnail slot="start" class="circle-thumb">
-            <img [src]="'./assets/exercises/' + session.Exercise_image " alt="" />
-          </ion-thumbnail>
-          <ion-label>
-            {{ session.numberOfSets }} Sets of {{ session.Exercise_name }}
-          </ion-label>
+<ion-menu contentId="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-title>Menu</ion-title>
+    </ion-toolbar>
+  </ion-header>
+  <ion-content class="ion-padding">
+    
+    <!-- Sorting Section -->
+    <ion-list-header>
+      <ion-label>Sort By</ion-label>
+    </ion-list-header>
+    <ion-list>
+      <ion-radio-group [value]="sortBy">
+        <ion-item button="true" (click)="sortBy = 'date-desc'; applySortAndFilter()">
+          <ion-label>Date (Newest First)</ion-label>
+          <ion-radio slot="end" value="date-desc"></ion-radio>
         </ion-item>
-      </ion-item-group>
+        <ion-item button="true" (click)="sortBy = 'date-asc'; applySortAndFilter()">
+          <ion-label>Date (Oldest First)</ion-label>
+          <ion-radio slot="end" value="date-asc"></ion-radio>
+        </ion-item>
+      </ion-radio-group>
     </ion-list>
-  </ion-card>
-</ion-content>
-<ng-template #noSessions>
-  <div class="ion-padding text-center">
-    <ion-text *ngIf="!isLoading" color="medium" class="ion-padding text-center">
-      <p color="medium">No Session Logs found.</p>
-    </ion-text>
-    <ion-spinner *ngIf="isLoading" name="dots" class=""></ion-spinner>
-  </div>
-</ng-template>
+
+    <!-- Filter Section -->
+    <ion-list-header>
+      <ion-label>Filter By</ion-label>
+    </ion-list-header>
+    <ion-list>
+      <!-- All Option -->
+      <ion-item button (click)="applyFilter('all')">
+        <ion-label>All</ion-label>
+        <ion-icon name="checkmark" slot="end" *ngIf="filterType === 'all'"></ion-icon>
+      </ion-item>
+
+      <!-- Filter by Split -->
+       <ion-item>
+        <ion-select label="Split" placeholder="Select Split" [value]="selectedSplitFilter" (ionChange)="applyFilter('split', $event.detail.value)">
+           <ion-select-option *ngFor="let split of availableSplits" [value]="split">{{ split }}</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+      <!-- Filter by Day -->
+      <ion-item>
+        <ion-select label="Day" placeholder="Select Day" [value]="selectedDayFilter" (ionChange)="applyFilter('day', $event.detail.value)">
+           <ion-select-option value="Monday">Monday</ion-select-option>
+           <ion-select-option value="Tuesday">Tuesday</ion-select-option>
+           <ion-select-option value="Wednesday">Wednesday</ion-select-option>
+           <ion-select-option value="Thursday">Thursday</ion-select-option>
+           <ion-select-option value="Friday">Friday</ion-select-option>
+           <ion-select-option value="Saturday">Saturday</ion-select-option>
+           <ion-select-option value="Sunday">Sunday</ion-select-option>
+        </ion-select>
+      </ion-item>
+
+    </ion-list>
+  </ion-content>
+</ion-menu>
+
+<div class="ion-page" id="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>Home</ion-title>
+    </ion-toolbar>
+  </ion-header>
+
+  <ion-content *ngIf="displaySessions.length > 0; else noSessions">
+    <ion-refresher slot="fixed" (ionRefresh)="doRefresh($event)">
+      <ion-refresher-content></ion-refresher-content>
+    </ion-refresher>
+    
+    <!-- Active Filters Display -->
+    <div class="px-3 py-2" *ngIf="filterType !== 'all'">
+      <ion-chip (click)="applyFilter('all')">
+        <ion-label *ngIf="filterType === 'split'">{{ selectedSplitFilter }}</ion-label>
+        <ion-label *ngIf="filterType === 'day'">{{ selectedDayFilter }}</ion-label>
+        <ion-icon name="close-circle"></ion-icon>
+      </ion-chip>
+    </div>
+
+    <ion-card class="m-0 rounded-none">
+      <ion-list
+        [inset]="true"
+        *ngFor="let session of displaySessions; let i = index"
+        class="session-card"
+        [routerLink]="['/workout-session', session.sessionId]"
+        routerDirection="forward"
+      >
+        <!-- Header - Split Name & Menu Icon -->
+        <ion-item lines="full" class="p-0">
+          <ion-label class="p-0 m-0 mt-2">
+            <h2 class="text-xl"><strong>{{ session.splitName }}</strong></h2>
+            <ion-text class="text-sm/7 relative top-[-2px] line" color="medium">
+              {{ session.startTime | date: 'dd MMMM yy' }}
+            </ion-text>
+          </ion-label>
+          <ion-icon
+            [id]="'open-action-sheet' + i"
+            name="ellipsis-vertical"
+            class="more-icon relative right-[-5px] top-[-5px] text-[20px]"
+            (click)="$event.stopPropagation()"
+          ></ion-icon>
+          <ion-action-sheet
+            [trigger]="'open-action-sheet' + i"
+            [buttons]="getActionSheetButtons()"
+            (didDismiss)="editActionHandler($event, session.sessionId)"
+            id="delteSplit"
+          ></ion-action-sheet>
+        </ion-item>
+  
+        <!-- Volumt & Sets -->
+        <ion-item class="top-[-8px]" lines="inset">
+          <div class="w-[95px]">
+            <ion-input
+              [readonly]="true"
+              labelPlacement="stacked"
+              [value]="session.totalVolume+' Kg'"
+            >
+              <div slot="label"><ion-text color="medium">Volume</ion-text></div>
+            </ion-input>
+          </div>
+          <div class="w-[95px]">
+            <ion-input
+              [readonly]="true"
+              labelPlacement="stacked"
+              [value]="session.totalSets"
+            >
+              <div slot="label"><ion-text color="medium">Sets</ion-text></div>
+            </ion-input>
+          </div>
+        </ion-item>
+  
+        <!-- Exercises and number of Sets -->
+        <ion-item-group
+          *ngFor="let exercise of session.exercises"
+          class="pb-2"
+        >
+          <ion-item [button]="true" detail="false" lines="none" class="mb-2">
+            <ion-thumbnail slot="start" class="circle-thumb">
+              <img [src]="'./assets/exercises/' + exercise.exerciseImage " alt="" />
+            </ion-thumbnail>
+            <ion-label>
+              {{ exercise.numberOfSets }} Sets of {{ exercise.exerciseName }}
+            </ion-label>
+          </ion-item>
+        </ion-item-group>
+      </ion-list>
+    </ion-card>
+  </ion-content>
+
+  <ng-template #noSessions>
+    <div class="ion-padding text-center">
+      <ion-text *ngIf="!isLoading" color="medium" class="ion-padding text-center">
+        <p color="medium">No Session Logs found.</p>
+      </ion-text>
+      <ion-spinner *ngIf="isLoading" name="dots" class=""></ion-spinner>
+    </div>
+  </ng-template>
+</div>

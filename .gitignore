@@ -18,3 +18,5 @@
 # Ignore OS / Editor junk
 .DS_Store
 Thumbs.db
+
+Rets-API/obj/

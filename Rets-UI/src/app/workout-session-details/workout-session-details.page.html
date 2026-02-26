@@ -1,0 +1,132 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/homepage"></ion-back-button>
+    </ion-buttons>
+    <ion-title>Workout Details</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content class="details-content">
+  <ng-container *ngIf="!isLoading && session; else stateBlock">
+    <div class="hero-card">
+      <div class="hero-top">
+        <div>
+          <ion-text color="medium" class="hero-kicker">Workout Session</ion-text>
+          <h1 class="hero-title">{{ session.split.splitName }}</h1>
+          <div class="hero-sub">
+            <ion-icon name="calendar-outline"></ion-icon>
+            <span>{{ session.startTime | date: 'EEEE, dd MMM yyyy' }}</span>
+            <span class="hero-dot">&#183;</span>
+            <span>{{ session.startTime | date: 'shortTime' }}</span>
+          </div>
+        </div>
+        <div class="hero-chips">
+          <ion-chip color="tertiary">
+            <ion-icon name="calendar-clear-outline"></ion-icon>
+            <ion-label>{{ dayLabel }}</ion-label>
+          </ion-chip>
+          <ion-chip color="medium">
+            <ion-icon name="barbell"></ion-icon>
+            <ion-label>{{ summary.totalExercises }} Exercises</ion-label>
+          </ion-chip>
+        </div>
+      </div>
+
+      <div class="hero-stats">
+        <div class="stat-item">
+          <div class="stat-label">Total Volume</div>
+          <div class="stat-value">{{ summary.totalVolume | number: '1.0-0' }} kg</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total Sets</div>
+          <div class="stat-value">{{ summary.totalSets }}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Total Reps</div>
+          <div class="stat-value">{{ summary.totalReps }}</div>
+        </div>
+        <div class="stat-item">
+          <div class="stat-label">Avg Load</div>
+          <div class="stat-value">{{ summary.avgLoad | number: '1.0-1' }} kg</div>
+        </div>
+      </div>
+    </div>
+
+    <ion-card class="callout-card" *ngIf="summary.topSet">
+      <ion-item lines="none">
+        <ion-icon name="trophy-outline" slot="start" color="warning"></ion-icon>
+        <ion-label>
+          <h3>Top Set</h3>
+          <p>
+            {{ summary.topSet.exerciseName }} - {{ summary.topSet.weight }} kg x
+            {{ summary.topSet.reps }} reps
+          </p>
+        </ion-label>
+      </ion-item>
+    </ion-card>
+
+    <app-muscle-heatmap [heatmap]="muscleHeatmap"></app-muscle-heatmap>
+
+    <div class="section-header">
+      <h2>Exercise Breakdown</h2>
+      <p>Set-by-set details and totals for each exercise.</p>
+    </div>
+
+    <ion-card class="exercise-card" *ngFor="let exercise of exerciseGroups">
+      <ion-item lines="none">
+        <ion-thumbnail slot="start" class="circle-thumb">
+          <img
+            [src]="'./assets/exercises/' + exercise.exerciseImage"
+            [alt]="exercise.exerciseName"
+          />
+        </ion-thumbnail>
+        <ion-label>
+          <h2>{{ exercise.exerciseName }}</h2>
+          <p>{{ exercise.primaryMuscle }}</p>
+        </ion-label>
+        <ion-badge color="primary">{{ exercise.totalSets }} sets</ion-badge>
+      </ion-item>
+
+      <div class="exercise-metrics">
+        <div class="metric">
+          <span>Total Reps</span>
+          <strong>{{ exercise.totalReps }}</strong>
+        </div>
+        <div class="metric">
+          <span>Total Volume</span>
+          <strong>{{ exercise.totalVolume | number: '1.0-0' }} kg</strong>
+        </div>
+        <div class="metric">
+          <span>Best Weight</span>
+          <strong>{{ exercise.bestWeight }} kg</strong>
+        </div>
+      </div>
+
+      <div class="sets-table">
+        <div class="sets-header">
+          <span>Set</span>
+          <span>Reps or Time</span>
+          <span>Load</span>
+          <span>Volume</span>
+        </div>
+        <div class="sets-row" *ngFor="let set of exercise.sets">
+          <span class="set-number">#{{ set.setNumber }}</span>
+          <span>{{ set.primary }}</span>
+          <span>{{ set.secondary }}</span>
+          <span>{{ set.volume }}</span>
+        </div>
+      </div>
+    </ion-card>
+  </ng-container>
+
+  <ng-template #stateBlock>
+    <div class="state-block ion-padding text-center">
+      <ion-spinner *ngIf="isLoading" name="crescent"></ion-spinner>
+      <ion-text color="medium" *ngIf="!isLoading">{{ loadError }}</ion-text>
+      <ion-button *ngIf="!isLoading" fill="clear" (click)="goBack()">
+        Go back
+      </ion-button>
+    </div>
+  </ng-template>
+</ion-content>

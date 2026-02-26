@@ -23,18 +23,18 @@
       <ion-card-header class="p-0">
         <ion-item lines="none" class="p-0">
           <ion-thumbnail slot="start" class="circle-thumb">
-            <img [src]="'./assets/exercises/' + exercise.Exercise_image" alt="" />
+            <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="" />
           </ion-thumbnail>
           <ion-label>
             <h2 class="">
-              {{ exercise.Exercise_name }}
+              {{ exercise.exerciseName }}
             </h2>
           </ion-label>
           <ion-icon [id]="'open-action-sheet-' + j" name="ellipsis-vertical" class="more-icon relative right-[-5px] text-base"></ion-icon>
           <ion-action-sheet
             [trigger]="'open-action-sheet-' + j"
-            [buttons]="getActionSheetButtons(exercise.Exercise_id)"
-            (didDismiss)="editActionHandler($event, exercise.Exercise_id)"
+            [buttons]="getActionSheetButtons(exercise.exerciseId)"
+            (didDismiss)="editActionHandler($event, exercise.exerciseId)"
           ></ion-action-sheet>
         </ion-item>
       </ion-card-header>
@@ -44,16 +44,16 @@
         <div class="labels my-1 flex justify-around items-center text-base text-center p-4">
           <div class="setNumber w-7 text-center">SET</div>
           <div class="previous w-[120px] text-center">PREVIOUS</div>
-          <div class="weight w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">WEIGHT</div>
-          <div class="reps w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps' || exercise.Exercise_type === 'Weighted Reps'">REPS</div>
-          <div class="reps w-[60px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">Time</div>
+          <div class="weight w-[60px] text-center" *ngIf="exercise.exerciseType === 'Weighted Reps'">WEIGHT</div>
+          <div class="reps w-[60px] text-center" *ngIf="exercise.exerciseType === 'Bodyweight Reps' || exercise.exerciseType === 'Weighted Reps'">REPS</div>
+          <div class="reps w-[60px] text-center" *ngIf="exercise.exerciseType === 'Bodyweight Timed'">Time</div>
           <div class="w-6 flex align-middle text-center">
             <ion-icon name="checkmark-outline" class="text-[24px]"></ion-icon>
           </div>
         </div>
         <!-- Dynamic Rows -->
         <ion-list>
-          <ion-item-sliding *ngFor="let item of lastSessionData[exercise.Exercise_id]; let i = index">
+          <ion-item-sliding *ngFor="let item of lastSessionData[exercise.exerciseId]; let i = index">
             <ion-item lines="none" [attr.color]="i % 2 == 0 ? 'light' : null" class="inputContainer h-[51px]">
               <div class="flex items-center justify-around w-full px-0">
                 <!-- Set number -->
@@ -61,36 +61,36 @@
                   <ion-input [readonly]="true" [value]="i + 1"></ion-input>
                 </div>
                 <!-- Previous_Bodyweight_Reps -->
-                <div class="previous w-[120px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Reps'">
-                  <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData[exercise.Exercise_id][i].reps+' Reps'"></ion-input>
+                <div class="previous w-[120px] text-center" *ngIf="exercise.exerciseType === 'Bodyweight Reps'">
+                  <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData[exercise.exerciseId][i].reps+' Reps'"></ion-input>
                 </div>
                 <!-- Previous_Weighted_Reps -->
-                <div class="previous w-[120px] text-center" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
-                  <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData[exercise.Exercise_id][i].weight+'kg x '+lastSessionData[exercise.Exercise_id][i].reps+' Reps'"></ion-input>
+                <div class="previous w-[120px] text-center" *ngIf="exercise.exerciseType === 'Weighted Reps'">
+                  <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData[exercise.exerciseId][i].weight+'kg x '+lastSessionData[exercise.exerciseId][i].reps+' Reps'"></ion-input>
                 </div>
                 <!-- Previous_Bodyweight_Timed -->
-                <div class="previous w-[120px] text-center" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
-                  <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData[exercise.Exercise_id][i].time"></ion-input>
+                <div class="previous w-[120px] text-center" *ngIf="exercise.exerciseType === 'Bodyweight Timed'">
+                  <ion-input [readonly]="true" [value]="" [placeholder]="lastSessionData[exercise.exerciseId][i].time"></ion-input>
                 </div>
                 <!-- Weight -->
-                <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Weighted Reps'">
-                  <ion-input type="number" (ionInput)="limitLength($event, 4)" (ngModelChange)="checkSetCompletion(exercise.Exercise_id, i, exercise.Exercise_type)" aria-label="Number input" [value]="" [placeholder]="lastSessionData[exercise.Exercise_id][i].weight" [(ngModel)]="setInputs[exercise.Exercise_id][i].weight"></ion-input>
+                <div class="weight w-[60px] text-center text-white" *ngIf="exercise.exerciseType === 'Weighted Reps'">
+                  <ion-input type="number" (ionInput)="limitLength($event, 4)" (ngModelChange)="checkSetCompletion(exercise.exerciseId, i, exercise.exerciseType)" aria-label="Number input" [value]="" [placeholder]="lastSessionData[exercise.exerciseId][i].weight" [(ngModel)]="setInputs[exercise.exerciseId][i].weight"></ion-input>
                 </div>
                 <!-- Reps -->
-                <div class="weight w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Bodyweight Reps' || exercise.Exercise_type === 'Weighted Reps'">
-                  <ion-input (ionInput)="limitLength($event, 2)" (ngModelChange)="checkSetCompletion(exercise.Exercise_id, i, exercise.Exercise_type)" aria-label="Number input" type="number" [placeholder]="lastSessionData[exercise.Exercise_id][i].reps" [(ngModel)]="setInputs[exercise.Exercise_id][i].reps"></ion-input>
+                <div class="weight w-[60px] text-center text-white" *ngIf="exercise.exerciseType === 'Bodyweight Reps' || exercise.exerciseType === 'Weighted Reps'">
+                  <ion-input (ionInput)="limitLength($event, 2)" (ngModelChange)="checkSetCompletion(exercise.exerciseId, i, exercise.exerciseType)" aria-label="Number input" type="number" [placeholder]="lastSessionData[exercise.exerciseId][i].reps" [(ngModel)]="setInputs[exercise.exerciseId][i].reps"></ion-input>
                 </div>
                 <!-- Time -->
-                <div class="reps w-[60px] text-center text-white" *ngIf="exercise.Exercise_type === 'Bodyweight Timed'">
-                  <ion-input (ionInput)="limitLength($event, 4)" (ngModelChange)="checkSetCompletion(exercise.Exercise_id, i, exercise.Exercise_type)" aria-label="Number input" type="number" [placeholder]="lastSessionData[exercise.Exercise_id][i].time" [(ngModel)]="setInputs[exercise.Exercise_id][i].time"></ion-input>
+                <div class="reps w-[60px] text-center text-white" *ngIf="exercise.exerciseType === 'Bodyweight Timed'">
+                  <ion-input (ionInput)="limitLength($event, 4)" (ngModelChange)="checkSetCompletion(exercise.exerciseId, i, exercise.exerciseType)" aria-label="Number input" type="number" [placeholder]="lastSessionData[exercise.exerciseId][i].time" [(ngModel)]="setInputs[exercise.exerciseId][i].time"></ion-input>
                 </div>
                 <div>
-                  <ion-checkbox slot="end" class="w-6" [(ngModel)]="setInputs[exercise.Exercise_id][i].completed"></ion-checkbox>
+                  <ion-checkbox slot="end" class="w-6" [(ngModel)]="setInputs[exercise.exerciseId][i].completed"></ion-checkbox>
                 </div>
               </div>
             </ion-item>
             <ion-item-options class="h-[43px] mt-[1px]">
-              <ion-item-option (click)="deleteSet(i, exercise.Exercise_id)" color="danger" class="w-12 text-xl">
+              <ion-item-option (click)="deleteSet(i, exercise.exerciseId)" color="danger" class="w-12 text-xl">
                 <ion-icon name="trash-outline"></ion-icon>
               </ion-item-option>
             </ion-item-options>
@@ -98,7 +98,7 @@
         </ion-list>
         <!-- Add Set Button -->
         <ion-button expand="block" size="small" class="m-4 h-[45px] text-base" color="light" 
-          (click)="addMoreSets(exercise.Exercise_id)">
+          (click)="addMoreSets(exercise.exerciseId)">
           <ion-icon class="mr-2" name="add-outline"></ion-icon>
           Add Set
         </ion-button>
@@ -135,16 +135,16 @@
               <ion-card *ngFor="let exercise of filteredExercises" class="mx-1">
                 <ion-item lines="none" class="">
                   <ion-thumbnail slot="start" class="circle-thumb"               >
-                    <img [src]="'./assets/exercises/' + exercise.Exercise_image" alt="{{ exercise.Exercise_name }}" />
+                    <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="{{ exercise.exerciseName }}" />
                   </ion-thumbnail>
                   <ion-label>
-                    <h2>{{ exercise.Exercise_name }}</h2>
+                    <h2>{{ exercise.exerciseName }}</h2>
                     <p>{{ exercise.muscleGroup }}</p>
                   </ion-label>
                   <ion-checkbox
                     slot="end"
-                    [checked]="isSelected(exercise.Exercise_id)"
-                    (ionChange)="toggleExerciseSelection(exercise.Exercise_id)">
+                    [checked]="isSelected(exercise.exerciseId)"
+                    (ionChange)="toggleExerciseSelection(exercise.exerciseId)">
                   </ion-checkbox>
                 </ion-item>
               </ion-card>

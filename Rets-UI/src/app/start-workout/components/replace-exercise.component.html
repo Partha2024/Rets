@@ -16,14 +16,14 @@
 
   <ion-list *ngIf="exercises.length > 0; else loading">
     <ion-card *ngFor="let exercise of filteredExercises" class="mx-0 my-2">
-      <ion-item lines="none" class="ion-activatable ripple-parent rounded-rectangle" (click)="confirm(exercise.Exercise_id)">
+      <ion-item lines="none" class="ion-activatable ripple-parent rounded-rectangle" (click)="confirm(exercise.exerciseId)">
         <ion-ripple-effect></ion-ripple-effect>
         <div class="flex items-center py-3">
           <ion-thumbnail slot="start" class="circle-thumb mr-3">
-            <img [src]="'./assets/exercises/' + exercise.Exercise_image" alt="{{ exercise.Exercise_name }}"/>
+            <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="{{ exercise.exerciseName }}"/>
           </ion-thumbnail>
           <ion-label class="">
-            <h2>{{ exercise.Exercise_name }}</h2>
+            <h2>{{ exercise.exerciseName }}</h2>
             <p>{{ exercise.muscleGroup }}</p>
           </ion-label>
         </div>

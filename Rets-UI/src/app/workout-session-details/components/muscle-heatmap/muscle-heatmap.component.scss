@@ -1,0 +1,90 @@
+:host {
+  display: block;
+  --heat-color: #f97316;
+}
+
+.heatmap-card {
+  margin: 12px 16px;
+  padding: 0 16px;
+  border-radius: 0;
+  background: transparent;
+  border: none;
+}
+
+.heatmap-header h3 {
+  margin: 0;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.heatmap-header p {
+  margin: 6px 0 0;
+  font-size: 0.8rem;
+  color: var(--details-subtext, var(--ion-color-medium));
+}
+
+.heatmap-canvas {
+  display: flex;
+  justify-content: center;
+  margin-top: 12px;
+}
+
+svg {
+  width: 100%;
+  max-width: 320px;
+  height: auto;
+  outline: none;
+}
+
+svg:focus {
+  outline: none;
+}
+
+.heat-shape {
+  fill: var(--heat-color);
+  stroke: rgba(160, 160, 160, 0.55);
+  stroke-width: 1;
+  stroke-linejoin: round;
+  stroke-linecap: round;
+  vector-effect: non-scaling-stroke;
+  transition: fill-opacity 200ms ease;
+}
+
+.head-shape {
+  fill: rgba(255, 255, 255, 0.02);
+  stroke: rgba(160, 160, 160, 0.6);
+  stroke-width: 1.1;
+  vector-effect: non-scaling-stroke;
+}
+
+.view-label {
+  font-size: 10px;
+  fill: var(--details-subtext, var(--ion-color-medium));
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.heatmap-legend {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  font-size: 0.75rem;
+  color: var(--details-subtext, var(--ion-color-medium));
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  display: inline-block;
+}
+
+.legend-dot.low {
+  background: rgba(249, 115, 22, 0.25);
+}
+
+.legend-dot.high {
+  background: rgba(249, 115, 22, 0.95);
+}

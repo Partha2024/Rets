@@ -2,8 +2,17 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.OpenApi.Models;
 using Rets_API.Data;
 using DotNetEnv;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
+{
+  var config = builder.Configuration["Redis:ConnectionString"];
+  return ConnectionMultiplexer.Connect(config);
+});
+
+
 
 // ⛔ Disable HTTPS redirection
 builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOptions>(options =>
@@ -13,6 +22,7 @@ builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOpti
 
 
 builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ICacheService, HybridCacheService>();
 
 // Load environment variables from .env file if in development mode
 if (builder.Environment.IsDevelopment())

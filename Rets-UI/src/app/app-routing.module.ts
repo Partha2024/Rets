@@ -27,6 +27,10 @@ const routes: Routes = [
     loadChildren: () => import('./home-page/home-page.module').then( m => m.HomePagePageModule)
   },
   {
+    path: 'workout-session/:sessionId',
+    loadChildren: () => import('./workout-session-details/workout-session-details.module').then( m => m.WorkoutSessionDetailsPageModule)
+  },
+  {
     path: 'splits-page',
     loadChildren: () => import('./splits-page/splits-page.module').then( m => m.SplitsPagePageModule)
   },
