@@ -13,11 +13,13 @@ namespace Rets_API.Controllers
   {
     private readonly ApplicationDbContext _context;
     private readonly IMemoryCache _cache;
+    private readonly ICacheService _cacheService;
 
-    public SplitsController(ApplicationDbContext context, IMemoryCache cache)
+    public SplitsController(ApplicationDbContext context, IMemoryCache cache, ICacheService cacheService)
     {
       _context = context;
       _cache = cache;
+      _cacheService = cacheService;
     }
 
     [HttpPost("create")]
@@ -50,23 +52,27 @@ namespace Rets_API.Controllers
                 SortOrder = se.SortOrder
               }).ToList()
       };
-      _cache.Remove("Splits");
+      // _cache.Remove("Splits");
+      await _cacheService.RemoveAsync("Splits");
       return Ok(response);
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetSplit(int id)
     {
-      if (_cache.TryGetValue("Splits", out var allSplits))
+      string key = $"Splits_{id}";
+      
+      var allSplits = await _cacheService.GetAsync<object>(key);
+      if (allSplits != null)
       {
         Console.WriteLine($"[GetSplit] Inside cache ✅");
-        var cachedSplit = ((IEnumerable<SplitDto>)allSplits)
-            .FirstOrDefault(s => s.SplitId == id);
-        if (cachedSplit != null)
-        {
-          Console.WriteLine($"[GetSplit] Returned from cache for ID: {id} ✅");
-          return Ok(cachedSplit);
-        }
+        // var splits = allSplits as IEnumerable<SplitDto>;
+        // var cachedSplit = splits?.FirstOrDefault(s => s.SplitId == id);
+        // if (cachedSplit != null)
+        // {
+          // Console.WriteLine($"[GetSplit] Returned from cache for ID: {id} ✅");
+          return Ok(allSplits);
+        // }
       }
       var split = await _context.Splits
           .Include(s => s.SplitExercises)
@@ -91,18 +97,32 @@ namespace Rets_API.Controllers
                 SortOrder = se.SortOrder
               }).ToList()
       };
+      await _cacheService.SetAsync(key, dto, TimeSpan.FromDays(2));
       return Ok(dto);
     }
 
     [HttpGet("all")]
     public async Task<IActionResult> GetSplits()
     {
-      if (_cache.TryGetValue("Splits", out var allSplits))
+      string key = "Splits";
+      var cached = await _cacheService.GetAsync<object>(key);
+      if (cached != null)
       {
-        Console.WriteLine("[All Splits] Returned from cache ✅");
-        return Ok(allSplits);
+        _ = Task.Run(async () =>
+          {
+            var fresh = await GetSplitsFromDb();
+            await _cacheService.SetAsync(key, fresh, TimeSpan.FromDays(2));
+          });
+        return Ok(cached);
       }
 
+      var data = await GetSplitsFromDb();
+      await _cacheService.SetAsync(key, data, TimeSpan.FromDays(2));
+      return Ok(data);
+    }
+
+    private async Task<object> GetSplitsFromDb()
+    {
       var splits = await _context.Splits
           .Include(s => s.SplitExercises)
           .ThenInclude(se => se.Exercise)
@@ -113,19 +133,15 @@ namespace Rets_API.Controllers
         SplitId = split.SplitId,
         SplitName = split.SplitName,
         DefaultDay = split.DefaultDay,
-        ExerciseIds = split.SplitExercises
-              .OrderBy(se => se.SortOrder) // keep order consistent
-              .Select(se => new SplitExerciseOrderDto
-              {
-                ExerciseId = se.ExerciseId,
-                SortOrder = se.SortOrder
-              }).ToList()
+        ExerciseIds = [.. split.SplitExercises
+          .OrderBy(se => se.SortOrder) // keep order consistent
+          .Select(se => new SplitExerciseOrderDto
+          {
+            ExerciseId = se.ExerciseId,
+            SortOrder = se.SortOrder
+          })]
       }).ToList();
-
-      _cache.Set("Splits", dtos, TimeSpan.FromMinutes(10));
-      Console.WriteLine("[Splits] Cached result ✅");
-
-      return Ok(dtos);
+      return dtos;
     }
 
     [HttpDelete("delete/{id}")]
@@ -144,7 +160,7 @@ namespace Rets_API.Controllers
         }
         _context.Splits.Remove(split);
         await _context.SaveChangesAsync();
-        _cache.Remove("Splits");
+        await _cacheService.RemoveAsync("Splits");
         return Ok(new { message = $"Split with ID {id} deleted successfully." });
       }
       catch (Exception ex)
@@ -181,7 +197,7 @@ namespace Rets_API.Controllers
       }).ToList();
 
       await _context.SaveChangesAsync();
-      _cache.Remove("Splits");
+      await _cacheService.RemoveAsync("Splits");
 
       var response = new SplitDto
       {

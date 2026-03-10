@@ -72,7 +72,7 @@ export class HomePagePage implements OnInit {
   }
 
   processSessions() {
-     this.allSessions = this.workoutSessions.map((session) => {
+    this.allSessions = this.workoutSessions.map((session) => {
           const exerciseMap = new Map<string, { count: number }>();
 
           session.exerciseLogs.forEach((log) => {

@@ -1,5 +1,5 @@
 public class ExerciseLogDto {
-    public string ExerciseId { get; set; }
+    public string? ExerciseId { get; set; }
     public int SetNumber { get; set; }
     public int? Reps { get; set; }
     public float? Weight { get; set; }

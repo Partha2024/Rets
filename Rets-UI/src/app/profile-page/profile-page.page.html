@@ -33,4 +33,12 @@
         <p color="medium">No API Requests Found</p>
     </div>
   </ng-template>
+
+  <!-- Floating Action Button for Clear Cache -->
+  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="mb-4 mr-2">
+    <ion-fab-button color="danger" (click)="clearCache()" [disabled]="isClearingCache">
+      <ion-icon name="trash-outline"></ion-icon>
+    </ion-fab-button>
+  </ion-fab>
+
 </ion-content>

@@ -3,15 +3,31 @@ using Microsoft.OpenApi.Models;
 using Rets_API.Data;
 using DotNetEnv;
 using StackExchange.Redis;
+using System.Text.Json;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Load environment variables from .env file if in development mode
+if (builder.Environment.IsDevelopment())
+{
+  Env.Load();
+}
+
+string? redisConnectionString = Environment.GetEnvironmentVariable("REDIS_CONNECTIONSTRING"); 
+if (string.IsNullOrWhiteSpace(redisConnectionString))
+{
+  throw new InvalidOperationException("Redis connection string is not configured.");
+}
 builder.Services.AddSingleton<IConnectionMultiplexer>(sp =>
 {
-  var config = builder.Configuration["Redis:ConnectionString"];
-  return ConnectionMultiplexer.Connect(config);
+  return ConnectionMultiplexer.Connect(redisConnectionString);
 });
 
+builder.Services.AddControllers()
+  .AddJsonOptions(options =>
+  {
+    options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+  });
 
 
 // ⛔ Disable HTTPS redirection
@@ -24,11 +40,6 @@ builder.Services.Configure<Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionOpti
 builder.Services.AddMemoryCache();
 builder.Services.AddScoped<ICacheService, HybridCacheService>();
 
-// Load environment variables from .env file if in development mode
-if (builder.Environment.IsDevelopment())
-{
-  Env.Load();
-}
 
 // Access the environment variables
 // string connectionString = builder.Configuration.GetConnectionString("DefaultConnection") ?? Environment.GetEnvironmentVariable("DATABASE_URL");
@@ -44,7 +55,7 @@ builder.Services.AddDbContext<ApplicationDbContext>(options =>
 );
 
 
-builder.Services.AddControllers();
+
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(c =>

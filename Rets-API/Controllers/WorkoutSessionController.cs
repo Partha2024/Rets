@@ -65,20 +65,36 @@ namespace Rets_API.Controllers
     [HttpGet("getAllWorkoutSessions")]
     public async Task<IActionResult> GetWorkoutSessions()
     {
+        var totalTimer = Stopwatch.StartNew();
         string key = "WorkoutSessions";
+        var cacheTimer = Stopwatch.StartNew();
         var cached = await _cacheService.GetAsync<object>(key);
+        cacheTimer.Stop();
+        Console.WriteLine($"[Cache] Time: {cacheTimer.ElapsedMilliseconds} ms");
         if (cached != null)
         {
-            _ = Task.Run(async () =>
-            {
-                var fresh = await GetWorkoutSessionsFromDb();
-                await _cacheService.SetAsync(key, fresh, TimeSpan.FromDays(2));
-            });
-            return Ok(cached);
+          Console.WriteLine("[Cache] HIT ✅");
+          _ = Task.Run(async () =>
+          {
+            var dbTimer = Stopwatch.StartNew();
+            var fresh = await GetWorkoutSessionsFromDb();
+            dbTimer.Stop();
+            Console.WriteLine($"[DB - Background Refresh] {dbTimer.ElapsedMilliseconds} ms");
+            await _cacheService.SetAsync(key, fresh, TimeSpan.FromDays(2));
+          });
+          totalTimer.Stop();
+          Console.WriteLine($"[TOTAL] {totalTimer.ElapsedMilliseconds} ms");
+          return Ok(cached);
         }
+        Console.WriteLine("[Cache] MISS ❌");
 
+        var dbQueryTimer = Stopwatch.StartNew();
         var data = await GetWorkoutSessionsFromDb();
+        dbQueryTimer.Stop();
+        Console.WriteLine($"[DB] Query Time: {dbQueryTimer.ElapsedMilliseconds} ms");
         await _cacheService.SetAsync(key, data, TimeSpan.FromDays(2));
+        totalTimer.Stop();
+        Console.WriteLine($"[TOTAL] {totalTimer.ElapsedMilliseconds} ms");
 
         return Ok(data);
     }
@@ -89,24 +105,24 @@ namespace Rets_API.Controllers
       .OrderByDescending(ws => ws.SessionId)
       .Select(session => new
       {
-          SessionId = session.SessionId,
-          StartTime = session.StartTime,
-          Split = new
-          {
-              session.Split.SplitId,
-              session.Split.SplitName,
-              session.Split.DefaultDay
-          },
-          ExerciseLogs = session.ExerciseLogs.Select(log => new
-          {
-              log.LogId,
-              log.ExerciseId,
-              ExerciseName = log.Exercise.ExerciseName,
-              log.SetNumber,
-              log.Reps,
-              log.Weight,
-              log.TimeInSeconds
-          }).ToList()
+        SessionId = session.SessionId,
+        StartTime = session.StartTime,
+        Split = new
+        {
+          session.Split!.SplitId,
+          session.Split.SplitName,
+          session.Split.DefaultDay
+        },
+        exerciseLogs = session.ExerciseLogs.Select(log => new
+        {
+          log.LogId,
+          log.ExerciseId,
+          ExerciseName = log.Exercise!.ExerciseName,
+          log.SetNumber,
+          log.Reps,
+          log.Weight,
+          log.TimeInSeconds
+        }).ToList()
       })
       .ToListAsync();
     }
@@ -169,7 +185,8 @@ namespace Rets_API.Controllers
 
     private async Task<object?> GetLastSessionFromDb(int splitId)
     {
-        return await _context.WorkoutSessions
+      #pragma warning disable CS8602 // Dereference of a possibly null reference.
+      return await _context.WorkoutSessions
           .Where(ws => ws.SplitId == splitId)
           .OrderByDescending(ws => ws.StartTime)
           .Select(ws => new
@@ -208,6 +225,7 @@ namespace Rets_API.Controllers
               })
               .ToList()
           }).FirstOrDefaultAsync();
+      #pragma warning restore CS8602 // Dereference of a possibly null reference.
     }
 
     [HttpPost("createSession")]
