@@ -1,0 +1,46 @@
+ion-content {
+  --background: #0e0e0e;
+}
+
+ion-toolbar {
+  --background: #0e0e0e;
+  --color: #ffffff;
+  --border-width: 0;
+}
+
+.font-lexend {
+  font-family: 'Lexend', sans-serif;
+}
+
+.font-manrope {
+  font-family: 'Manrope', sans-serif;
+}
+
+/* Navigation and Container uses Tailwind */
+
+.activity-cell {
+  background-color: #262626; /* default level 0, surface_variant */
+  transition: opacity 0.2s;
+  
+  &.level-1 {
+    background-color: #3880ff; /* Blue */
+    box-shadow: 0 0 10px rgba(56, 128, 255, 0.5);
+    color: #e2e8f0; /* Better contrast text for blue */
+  }
+}
+
+ion-accordion {
+  background: transparent;
+  margin: 0 !important;
+}
+
+ion-item::part(native) {
+  background: transparent !important;
+}
+
+ion-card {
+  margin-inline: 0 !important;
+  margin-block-start: 0 !important;
+  margin-block-end: 1rem !important;
+  box-shadow: none !important;
+}

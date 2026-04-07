@@ -1,44 +1,91 @@
 <ion-header>
-  <ion-toolbar>
-    <ion-title>Profile</ion-title>
+  <ion-toolbar class="bg-[#0e0e0e] border-b border-[#262626]" style="--background: transparent; --border-width: 0;">
+    <ion-title class="font-lexend text-[#ffffff]">Profile</ion-title>
   </ion-toolbar>
 </ion-header>
 
-<ion-content>
+<ion-content style="--background: #0e0e0e; color: #ffffff;" [scrollY]="true">
   <ion-refresher slot="fixed">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
-  
-  <ion-list class="" *ngIf="((timings$ | async)?.length || 0) > 0; else noSessions">
-    <ion-card class="p-3" *ngFor="let t of (timings$ | async)">
-      <ion-label>
-        <span class="text-white text-base">{{ t.method }}</span>
-        <h3>{{ t.url }}</h3>
-        <p class="flex gap-1 text-sm/7 text-medium items-center">
-          <span [class.text-green-500]="t.status === 200"
-                [class.text-red-500]="t.status !== 200 && t.status !== 'PENDING'"
-                [class.text-yellow-500]="t.status === 'PENDING'">
-            {{ t.status }}
-          </span>
-           • <span class="text-white">
-              <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
-           </span>
-           • <span>{{ t.at | date:'shortTime' }}</span>
-        </p>
-      </ion-label>
-    </ion-card>
-  </ion-list>
-  <ng-template #noSessions>
-    <div class="ion-padding text-center">
-        <p color="medium">No API Requests Found</p>
+
+  <!-- Profile Header -->
+  <div class="p-6 flex flex-col items-center">
+    <ion-avatar style="width: 100px; height: 100px; border: 2px solid #3880ff;" class="mb-4">
+      <img src="https://ionicframework.com/docs/img/demos/avatar.svg" />
+    </ion-avatar>
+    <h2 class="text-2xl font-bold font-lexend text-[#ffffff] mb-2">Partha</h2>
+  </div>
+
+  <!-- Activity Calendar (Month View) -->
+  <div class="px-4 pb-8">
+    <div class="flex justify-between items-center mb-4">
+       <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
+       <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
+       <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
     </div>
-  </ng-template>
+    
+    <div class="activity-graph-container bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
+       <div class="grid grid-cols-7 gap-1 mb-2">
+         <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
+            {{ day }}
+         </div>
+       </div>
+       <div class="grid grid-cols-7 gap-1">
+         <div *ngFor="let day of calendarDays" 
+              class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs" 
+              [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
+              [style.visibility]="day.date === null ? 'hidden' : 'visible'">
+             {{ day.date ? day.date : '' }}
+         </div>
+       </div>
+    </div>
+  </div>
 
-  <!-- Floating Action Button for Clear Cache -->
-  <ion-fab slot="fixed" vertical="bottom" horizontal="end" class="mb-4 mr-2">
-    <ion-fab-button color="danger" (click)="clearCache()" [disabled]="isClearingCache">
-      <ion-icon name="trash-outline"></ion-icon>
-    </ion-fab-button>
-  </ion-fab>
+  <!-- Stats for Nerds / API timings -->
+  <div class="px-4 pb-12">
+    <ion-accordion-group class="rounded-xl border border-[#262626] overflow-hidden" style="background: transparent;">
+      <ion-accordion value="stats" style="background: transparent;">
+        <ion-item slot="header" lines="none" style="--background: #1a1919;">
+          <ion-icon name="hardware-chip-outline" slot="start" class="text-[#3880ff]"></ion-icon>
+          <ion-label class="font-lexend text-[#ffffff]">Stats for Nerds</ion-label>
+        </ion-item>
+        
+        <div class="ion-padding" slot="content" style="background: #131313;">
+          <ion-list style="background: transparent;" *ngIf="((timings$ | async)?.length || 0) > 0; else noSessions">
+            <ion-card class="bg-[#1a1919] shadow-none mb-3 p-3 rounded-lg border border-[#262626]" *ngFor="let t of (timings$ | async)">
+              <ion-label>
+                <span class="text-[#3880ff] text-base font-manrope">{{ t.method }}</span>
+                <h3 class="text-[#ffffff] font-lexend mt-1 text-sm whitespace-normal break-all">{{ t.url }}</h3>
+                <p *ngIf="t.errorMsg" class="text-[#eb445a] font-manrope text-xs mt-1">{{ t.errorMsg }}</p>
+                <p class="flex gap-1 text-xs text-[#adaaaa] items-center mt-2 font-mono">
+                  <span [class.text-green-500]="t.status === 200"
+                        [class.text-red-500]="t.status !== 200 && t.status !== 'PENDING'"
+                        [class.text-yellow-500]="t.status === 'PENDING'">
+                    {{ t.status }}
+                  </span>
+                   • <span class="text-[#ffffff]">
+                      <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
+                   </span>
+                   • <span>{{ t.at | date:'shortTime' }}</span>
+                </p>
+              </ion-label>
+            </ion-card>
+          </ion-list>
+          <ng-template #noSessions>
+            <div class="ion-padding text-center">
+                <p class="text-[#adaaaa] font-manrope">No API Requests Found</p>
+            </div>
+          </ng-template>
 
+          <div class="flex justify-end mt-4">
+             <ion-button color="danger" fill="outline" (click)="clearCache()" [disabled]="isClearingCache" size="small" class="font-manrope">
+                <ion-icon name="trash-outline" slot="start"></ion-icon>
+                Clear Cache
+             </ion-button>
+          </div>
+        </div>
+      </ion-accordion>
+    </ion-accordion-group>
+  </div>
 </ion-content>

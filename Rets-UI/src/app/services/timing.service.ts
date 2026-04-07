@@ -9,6 +9,7 @@ export interface ApiTiming {
   status: number | 'ERR' | 'PENDING';
   durationMs?: number;
   at: number;
+  errorMsg?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -34,12 +35,12 @@ export class ApiTimingService {
     return id;
   }
 
-  complete(id: string, status: number | 'ERR', duration: number) {
+  complete(id: string, status: number | 'ERR', duration: number, errorMsg?: string) {
       const curr = this._timings.getValue();
       const idx = curr.findIndex(x => x.id === id);
       if (idx > -1) {
           const updated = [...curr];
-          updated[idx] = { ...updated[idx], status, durationMs: duration };
+          updated[idx] = { ...updated[idx], status, durationMs: duration, errorMsg };
           this._timings.next(updated);
       }
   }
