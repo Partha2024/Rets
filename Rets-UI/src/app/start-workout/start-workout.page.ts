@@ -542,8 +542,16 @@ export class StartWorkoutPage implements OnInit {
           });
           await toast.present();
         },
-        error: (err) => {
-          console.error('Error saving workout:', err);
+        error: async (err) => {
+          const toast = await this.toastController.create({
+            message: 'Error Saving Session. [' + (err?.error?.message ?? 'Unknown error') + ']',
+            duration: 3000,
+            color: 'danger',
+            position: 'bottom',
+            swipeGesture: 'vertical'
+          });
+          await toast.present();
+          await loading.dismiss();
         },
         complete: async () => {
           await loading.dismiss();
