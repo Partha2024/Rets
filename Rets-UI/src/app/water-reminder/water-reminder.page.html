@@ -1,0 +1,118 @@
+<ion-header>
+  <ion-toolbar class="bg-[#0e0e0e]" style="--background: transparent; --border-width: 0;">
+    <ion-buttons slot="start">
+      <ion-back-button defaultHref="/tabs/profile" style="--color: #f3ffca;"></ion-back-button>
+    </ion-buttons>
+    <ion-title class="font-lexend text-[#ffffff]">Water Reminder</ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content style="--background: #0e0e0e; color: #ffffff;" class="ion-padding">
+  <div class="mb-8 mt-4">
+    <h3 class="font-lexend text-[#ffffff] text-xl mb-4">Active Days</h3>
+    <div class="flex justify-between gap-2">
+      <div *ngFor="let day of weekDays; let i = index" 
+           (click)="toggleDay(i)"
+           class="w-10 h-10 rounded-full flex items-center justify-center font-lexend text-sm transition-colors duration-200"
+           [ngClass]="activeDays.includes(i) ? 'bg-[#cafd00] text-[#516700]' : 'bg-[#1a1a1a] text-[#adaaaa]'">
+        {{ day }}
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <h3 class="font-lexend text-[#ffffff] text-xl mb-2">Reminder Interval</h3>
+    <p class="font-manrope text-[#adaaaa] text-sm mb-4">Spacing between alerts</p>
+    
+    <div class="bg-[#1a1a1a] rounded-xl p-4 flex flex-col gap-4">
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+           <ion-icon name="time-outline" class="text-2xl text-[#ff7441]"></ion-icon>
+           <span class="font-manrope text-[#adaaaa]">Hours</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <ion-button fill="clear" (click)="changeIntervalHours(-1)" [disabled]="intervalHours <= 0" style="--color: #f3ffca;">
+            <ion-icon name="remove-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <span class="font-lexend text-2xl text-[#ffffff] w-8 text-center">{{ intervalHours }}</span>
+          <ion-button fill="clear" (click)="changeIntervalHours(1)" [disabled]="intervalHours >= 12" style="--color: #f3ffca;">
+            <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+      
+      <div class="flex items-center justify-between">
+        <div class="flex items-center gap-2">
+           <ion-icon name="timer-outline" class="text-2xl text-[#ff7441]"></ion-icon>
+           <span class="font-manrope text-[#adaaaa]">Minutes</span>
+        </div>
+        <div class="flex items-center gap-2">
+          <ion-button fill="clear" (click)="changeIntervalMinutes(-1)" [disabled]="intervalMinutes <= 0 && intervalHours <= 0" style="--color: #f3ffca;">
+            <ion-icon name="remove-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+          <span class="font-lexend text-2xl text-[#ffffff] w-8 text-center">{{ intervalMinutes }}</span>
+          <ion-button fill="clear" (click)="changeIntervalMinutes(1)" [disabled]="intervalMinutes >= 59 && intervalHours >= 12" style="--color: #f3ffca;">
+            <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+          </ion-button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-8">
+    <h3 class="font-lexend text-[#ffffff] text-xl mb-2">Daily Frequency</h3>
+    <p class="font-manrope text-[#adaaaa] text-sm mb-4">Goal targets per day</p>
+    
+    <div class="bg-[#1a1a1a] rounded-xl p-4 flex items-center justify-between">
+      <ion-icon name="water-outline" class="text-2xl text-[#ff7441]"></ion-icon>
+      <span class="font-lexend text-2xl text-[#ffffff]">{{ timesPerDay }}x</span>
+      <div class="flex gap-2">
+        <ion-button fill="clear" (click)="changeTimes(-1)" [disabled]="timesPerDay <= 1" style="--color: #f3ffca;">
+          <ion-icon name="remove-circle-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+        <ion-button fill="clear" (click)="changeTimes(1)" [disabled]="timesPerDay >= 20" style="--color: #f3ffca;">
+          <ion-icon name="add-circle-outline" slot="icon-only"></ion-icon>
+        </ion-button>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-8 flex gap-4">
+    <div class="flex-1 bg-[#1a1a1a] rounded-xl p-4">
+      <h3 class="font-lexend text-[#ffffff] text-sm mb-2 text-center">Start Time</h3>
+      <div class="flex justify-center">
+        <ion-datetime-button datetime="startTime" class="font-lexend" style="--background: #2c2c2c; --color: #ffffff;"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime id="startTime" presentation="time" [(ngModel)]="startTime" style="--background: #1a1a1a; --color: #ffffff;"></ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </div>
+    </div>
+    <div class="flex-1 bg-[#1a1a1a] rounded-xl p-4">
+      <h3 class="font-lexend text-[#ffffff] text-sm mb-2 text-center">End Time</h3>
+      <div class="flex justify-center">
+        <ion-datetime-button datetime="endTime" class="font-lexend" style="--background: #2c2c2c; --color: #ffffff;"></ion-datetime-button>
+        <ion-modal [keepContentsMounted]="true">
+          <ng-template>
+            <ion-datetime id="endTime" presentation="time" [(ngModel)]="endTime" style="--background: #1a1a1a; --color: #ffffff;"></ion-datetime>
+          </ng-template>
+        </ion-modal>
+      </div>
+    </div>
+  </div>
+
+  <div class="mb-4 bg-[#1a1a1a] rounded-xl p-4 text-center border border-[#262626]">
+     <p class="font-manrope text-[#adaaaa] text-xs uppercase tracking-wider mb-1">Next Notification</p>
+     <p class="font-lexend text-[#f3ffca] text-lg">{{ nextReminderText }}</p>
+  </div>
+
+</ion-content>
+
+<ion-footer class="ion-no-border" style="background: #0e0e0e;">
+  <div class="p-4 pt-0">
+    <ion-button expand="block" shape="round" class="font-lexend" style="--background: #f3ffca; --color: #516700; height: 56px;" (click)="saveSettings()">
+      Save Configuration
+    </ion-button>
+  </div>
+</ion-footer>

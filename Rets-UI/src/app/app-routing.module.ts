@@ -41,7 +41,11 @@ const routes: Routes = [
   {
     path: 'reorder-exercises',
     loadChildren: () => import('./reorder-exercises/reorder-exercises.module').then( m => m.ReorderExercisesPageModule)
+  },  {
+    path: 'water-reminder',
+    loadChildren: () => import('./water-reminder/water-reminder.module').then( m => m.WaterReminderPageModule)
   }
+
 ];
 @NgModule({
   imports: [
