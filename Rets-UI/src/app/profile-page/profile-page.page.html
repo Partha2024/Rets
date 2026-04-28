@@ -20,31 +20,31 @@
   <!-- Activity Calendar (Month View) -->
   <div class="px-4 pb-8">
     <div class="flex justify-between items-center mb-4">
-       <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
-       <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
-       <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
-    </div>
-    
-    <div class="activity-graph-container bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
-       <div class="grid grid-cols-7 gap-1 mb-2">
-         <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
-            {{ day }}
-         </div>
-       </div>
-       <div class="grid grid-cols-7 gap-1">
-         <div *ngFor="let day of calendarDays" 
-              class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs" 
-              [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
-              [style.visibility]="day.date === null ? 'hidden' : 'visible'">
-             {{ day.date ? day.date : '' }}
-         </div>
-       </div>
+      <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
+      <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
+      <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
+  </div>
+  
+  <div class="activity-graph-container bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
+      <div class="grid grid-cols-7 gap-1 mb-2">
+        <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
+          {{ day }}
+        </div>
+      </div>
+      <div class="grid grid-cols-7 gap-1">
+        <div *ngFor="let day of calendarDays" 
+            class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs" 
+            [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
+            [style.visibility]="day.date === null ? 'hidden' : 'visible'">
+            {{ day.date ? day.date : '' }}
+        </div>
+      </div>
     </div>
   </div>
 
   <!-- Water Reminder Settings -->
   <div class="px-4 pb-4">
-    <ion-item button routerLink="/water-reminder" lines="none" class="rounded-xl border border-[#262626]" style="--background: #1a1919;">
+    <ion-item detail="false" routerLink="/water-reminder" lines="none" class="rounded-xl border border-[#262626]" style="--background: #1a1919;">
       <ion-icon name="water" slot="start" class="text-[#f3ffca]"></ion-icon>
       <ion-label class="font-lexend text-[#ffffff]">Water Reminder</ion-label>
       <ion-icon name="chevron-forward" slot="end" class="text-[#adaaaa]"></ion-icon>
@@ -73,10 +73,10 @@
                         [class.text-yellow-500]="t.status === 'PENDING'">
                     {{ t.status }}
                   </span>
-                   • <span class="text-[#ffffff]">
-                      <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
-                   </span>
-                   • <span>{{ t.at | date:'shortTime' }}</span>
+                  • <span class="text-[#ffffff]">
+                    <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
+                  </span>
+                  • <span>{{ t.at | date:'shortTime' }}</span>
                 </p>
               </ion-label>
             </ion-card>
@@ -88,10 +88,10 @@
           </ng-template>
 
           <div class="flex justify-end mt-4">
-             <ion-button color="danger" fill="outline" (click)="clearCache()" [disabled]="isClearingCache" size="small" class="font-manrope">
-                <ion-icon name="trash-outline" slot="start"></ion-icon>
-                Clear Cache
-             </ion-button>
+            <ion-button color="danger" fill="outline" (click)="clearCache()" [disabled]="isClearingCache" size="small" class="font-manrope">
+              <ion-icon name="trash-outline" slot="start"></ion-icon>
+              Clear Cache
+            </ion-button>
           </div>
         </div>
       </ion-accordion>

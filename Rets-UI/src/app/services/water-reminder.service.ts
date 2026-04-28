@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
-import { LocalNotifications } from '@capacitor/local-notifications';
-import { Haptics, ImpactStyle } from '@capacitor/haptics';
+import { App } from '@capacitor/app';
+import { Capacitor, registerPlugin } from '@capacitor/core';
 import { AlertController, Platform } from '@ionic/angular';
 
 export interface WaterReminderSettings {
@@ -12,12 +12,31 @@ export interface WaterReminderSettings {
   endTime: string;
 }
 
+interface NativeScheduleOptions {
+  activeDays: number[];
+  intervalMinutes: number;
+  timesPerDay: number;
+  startMinutes: number;
+  endMinutes: number;
+}
+
+interface WaterReminderNativePlugin {
+  requestPermissions(): Promise<{ notifications: string }>;
+  openExactAlarmSettings(): Promise<void>;
+  schedule(options: NativeScheduleOptions): Promise<void>;
+  cancel(): Promise<void>;
+  stopActiveReminder(): Promise<void>;
+  getStatus(): Promise<{ active: boolean }>;
+}
+
+const WaterReminderNative = registerPlugin<WaterReminderNativePlugin>('WaterReminderNative');
+
 @Injectable({
   providedIn: 'root'
 })
 export class WaterReminderService {
   private readonly STORAGE_KEY = 'water_reminder_settings';
-  private hapticIntervalId: any = null;
+  private activeAlert: HTMLIonAlertElement | null = null;
 
   constructor(private alertCtrl: AlertController, private platform: Platform) {
     this.init();
@@ -25,41 +44,24 @@ export class WaterReminderService {
 
   async init() {
     await this.platform.ready();
-    try {
-      await LocalNotifications.requestPermissions();
-      
-      await LocalNotifications.registerActionTypes({
-        types: [
-          {
-            id: 'WATER_ACTION',
-            actions: [
-              {
-                id: 'done',
-                title: 'Done (Drank Water)',
-                foreground: false
-              }
-            ]
-          }
-        ]
-      });
-    } catch (e) {
-      console.warn('LocalNotifications permission or action registration failed', e);
-    }
-    
-    LocalNotifications.addListener('localNotificationActionPerformed', (notification) => {
-      if (notification.actionId === 'done') {
-         console.log('User marked water as drank from notification.');
-         if (this.hapticIntervalId) {
-             clearInterval(this.hapticIntervalId);
-             this.hapticIntervalId = null;
-         }
-         return;
-      }
 
-      if (notification.actionId === 'tap' && notification.notification.extra && notification.notification.extra.type === 'water_reminder') {
-        this.triggerVibrationAlert();
+    if (!Capacitor.isNativePlatform()) {
+      return;
+    }
+
+    try {
+      await WaterReminderNative.requestPermissions();
+    } catch (e) {
+      console.warn('Water reminder native permission request failed', e);
+    }
+
+    App.addListener('appStateChange', async ({ isActive }) => {
+      if (isActive) {
+        await this.showActiveReminderIfNeeded();
       }
     });
+
+    await this.showActiveReminderIfNeeded();
   }
 
   async getSettings(): Promise<WaterReminderSettings | null> {
@@ -69,112 +71,90 @@ export class WaterReminderService {
 
   async saveSettings(settings: WaterReminderSettings) {
     localStorage.setItem(this.STORAGE_KEY, JSON.stringify(settings));
-    await this.scheduleNotifications(settings);
+    await this.scheduleNativeReminder(settings);
   }
 
-  private async scheduleNotifications(settings: WaterReminderSettings) {
-    try {
-      await LocalNotifications.cancel({ notifications: (await LocalNotifications.getPending()).notifications });
-    } catch (e) {
-      console.warn('Failed to cancel notifications', e);
+  public async stopActiveReminder() {
+    if (Capacitor.isNativePlatform()) {
+      await WaterReminderNative.stopActiveReminder();
     }
 
-    if (settings.activeDays.length === 0 || settings.timesPerDay === 0) {
+    if (this.activeAlert) {
+      await this.activeAlert.dismiss();
+      this.activeAlert = null;
+    }
+  }
+
+  private async scheduleNativeReminder(settings: WaterReminderSettings) {
+    if (!Capacitor.isNativePlatform()) {
       return;
     }
 
-    const notifications = [];
-    let idCounter = 1;
-    
-    const startObj = new Date(settings.startTime);
-    const endObj = new Date(settings.endTime);
-    const startHour = startObj.getHours();
-    const startMin = startObj.getMinutes();
-    const endHour = endObj.getHours();
-    const endMin = endObj.getMinutes();
-    
-    const intervalH = settings.intervalHours || 0;
-    const intervalM = settings.intervalMinutes || 0;
-    
-    // Avoid infinite loop if interval is 0
-    if (intervalH === 0 && intervalM === 0) {
-        return;
+    const intervalMinutes = (settings.intervalHours || 0) * 60 + (settings.intervalMinutes || 0);
+    const startMinutes = this.getMinutesOfDay(settings.startTime);
+    const endMinutes = this.getMinutesOfDay(settings.endTime);
+
+    if (settings.activeDays.length === 0 || settings.timesPerDay === 0 || intervalMinutes === 0) {
+      await WaterReminderNative.cancel();
+      return;
     }
 
-    for (const day of settings.activeDays) {
-        const capWeekday = day === 6 ? 1 : day + 2;
-        
-        let currentHour = startHour;
-        let currentMin = startMin;
-
-        for (let i = 0; i < settings.timesPerDay; i++) {
-           if (currentHour > endHour || (currentHour === endHour && currentMin > endMin)) {
-               break; 
-           }
-
-           notifications.push({
-               id: idCounter++,
-               title: '💧 Time to hydrate!',
-               body: 'Drink some water and stay healthy.',
-               actionTypeId: 'WATER_ACTION',
-               schedule: { 
-                   on: {
-                       weekday: capWeekday,
-                       hour: currentHour,
-                       minute: currentMin
-                   }
-               },
-               extra: { type: 'water_reminder' }
-           });
-           
-           currentMin += intervalM;
-           currentHour += intervalH;
-           
-           if (currentMin >= 60) {
-               currentMin -= 60;
-               currentHour += 1;
-           }
-           
-           if (currentHour >= 24) break; 
-        }
+    if (startMinutes > endMinutes) {
+      console.warn('Water reminder schedule was not saved natively because start time is after end time.');
+      return;
     }
 
-    if (notifications.length > 0) {
-       try {
-         await LocalNotifications.schedule({ notifications });
-       } catch (e) {
-         console.warn('Failed to schedule notifications', e);
-       }
+    try {
+      await WaterReminderNative.schedule({
+        activeDays: settings.activeDays,
+        intervalMinutes,
+        timesPerDay: settings.timesPerDay,
+        startMinutes,
+        endMinutes
+      });
+    } catch (e) {
+      console.warn('Failed to schedule native water reminders', e);
     }
   }
 
-  public async triggerVibrationAlert() {
-    if (this.hapticIntervalId) {
-        clearInterval(this.hapticIntervalId);
+  private async showActiveReminderIfNeeded() {
+    if (!Capacitor.isNativePlatform() || this.activeAlert) {
+      return;
     }
-    
-    this.hapticIntervalId = setInterval(() => {
-       Haptics.impact({ style: ImpactStyle.Heavy }).catch(() => {});
-    }, 200);
 
-    const alert = await this.alertCtrl.create({
+    try {
+      const status = await WaterReminderNative.getStatus();
+      if (!status.active) {
+        return;
+      }
+    } catch (e) {
+      console.warn('Failed to read native water reminder status', e);
+      return;
+    }
+
+    this.activeAlert = await this.alertCtrl.create({
       header: 'Hydration Time',
       message: 'It\'s time to drink water!',
       buttons: [
         {
           text: 'Done',
           role: 'cancel',
-          handler: () => {
-            if (this.hapticIntervalId) {
-              clearInterval(this.hapticIntervalId);
-              this.hapticIntervalId = null;
-            }
+          handler: async () => {
+            await this.stopActiveReminder();
           }
         }
       ],
       backdropDismiss: false
     });
 
-    await alert.present();
+    this.activeAlert.onDidDismiss().then(() => {
+      this.activeAlert = null;
+    });
+    await this.activeAlert.present();
+  }
+
+  private getMinutesOfDay(value: string): number {
+    const date = new Date(value);
+    return date.getHours() * 60 + date.getMinutes();
   }
 }
