@@ -22,46 +22,6 @@ namespace Rets_API.Controllers
       _cacheService = cacheService;
     }
 
-    // [HttpGet("getAllWorkoutSessions")]
-    // public async Task<IActionResult> GetWorkoutSessions()
-    // {
-    //   if (_cache.TryGetValue("WorkoutSessions", out var cachedSessions))
-    //   {
-    //     Console.WriteLine("[GetWorkoutSessions] Returned from cache ✅");
-    //     return Ok(cachedSessions);
-    //   }
-    //   var sessions = await _context.WorkoutSessions
-    //       .Include(ws => ws.Split)
-    //       .Include(ws => ws.ExerciseLogs)
-    //       .ThenInclude(el => el.Exercise)
-    //       .OrderByDescending(ws => ws.SessionId)
-    //       .ToListAsync();
-    //   var result = sessions.Select(session => new
-    //   {
-    //     SessionId = session.SessionId,
-    //     StartTime = session.StartTime,
-    //     Split = new
-    //     {
-    //       session.Split.SplitId,
-    //       session.Split.SplitName,
-    //       session.Split.DefaultDay
-    //     },
-    //     ExerciseLogs = session.ExerciseLogs.Select(log => new
-    //     {
-    //       log.LogId,
-    //       log.ExerciseId,
-    //       ExerciseName = log.Exercise?.ExerciseName,
-    //       log.SetNumber,
-    //       log.Reps,
-    //       log.Weight,
-    //       log.TimeInSeconds
-    //     })
-    //   });
-    //   _cache.Set("WorkoutSessions", result, TimeSpan.FromMinutes(10));
-    //   Console.WriteLine("[GetWorkoutSessions] Cached result ✅");
-    //   return Ok(result);
-    // }
-
     [HttpGet("getAllWorkoutSessions")]
     public async Task<IActionResult> GetWorkoutSessions()
     {
@@ -70,31 +30,31 @@ namespace Rets_API.Controllers
         var cacheTimer = Stopwatch.StartNew();
         var cached = await _cacheService.GetAsync<object>(key);
         cacheTimer.Stop();
-        Console.WriteLine($"[Cache] Time: {cacheTimer.ElapsedMilliseconds} ms");
+        // Console.WriteLine($"[Cache] Time: {cacheTimer.ElapsedMilliseconds} ms");
         if (cached != null)
         {
-          Console.WriteLine("[Cache] HIT ✅");
+          // Console.WriteLine("[Cache] HIT ✅");
           _ = Task.Run(async () =>
           {
             var dbTimer = Stopwatch.StartNew();
             var fresh = await GetWorkoutSessionsFromDb();
             dbTimer.Stop();
-            Console.WriteLine($"[DB - Background Refresh] {dbTimer.ElapsedMilliseconds} ms");
+            // Console.WriteLine($"[DB - Background Refresh] {dbTimer.ElapsedMilliseconds} ms");
             await _cacheService.SetAsync(key, fresh, TimeSpan.FromDays(2));
           });
           totalTimer.Stop();
-          Console.WriteLine($"[TOTAL] {totalTimer.ElapsedMilliseconds} ms");
+          // Console.WriteLine($"[TOTAL] {totalTimer.ElapsedMilliseconds} ms");
           return Ok(cached);
         }
-        Console.WriteLine("[Cache] MISS ❌");
+        // Console.WriteLine("[Cache] MISS ❌");
 
         var dbQueryTimer = Stopwatch.StartNew();
         var data = await GetWorkoutSessionsFromDb();
         dbQueryTimer.Stop();
-        Console.WriteLine($"[DB] Query Time: {dbQueryTimer.ElapsedMilliseconds} ms");
+        // Console.WriteLine($"[DB] Query Time: {dbQueryTimer.ElapsedMilliseconds} ms");
         await _cacheService.SetAsync(key, data, TimeSpan.FromDays(2));
         totalTimer.Stop();
-        Console.WriteLine($"[TOTAL] {totalTimer.ElapsedMilliseconds} ms");
+        // Console.WriteLine($"[TOTAL] {totalTimer.ElapsedMilliseconds} ms");
 
         return Ok(data);
     }
@@ -126,48 +86,6 @@ namespace Rets_API.Controllers
       })
       .ToListAsync();
     }
-
-    // [HttpGet("getLastWorkoutSession/{splitId}")]
-    // public async Task<IActionResult> GetLastWorkoutSession(int splitId)
-    // {
-    //   var lastSession = await _context.WorkoutSessions
-    //     .Where(ws => ws.SplitId == splitId)
-    //     .OrderByDescending(ws => ws.StartTime)
-    //     .Include(ws => ws.ExerciseLogs)
-    //       .ThenInclude(el => el.Exercise)
-    //     .FirstOrDefaultAsync();
-    //   if (lastSession == null)
-    //   {
-    //     return Ok(null);
-    //   }
-    //   var orderedLogs = lastSession.ExerciseLogs
-    //     .OrderBy(log =>
-    //         _context.SplitExercises
-    //             .Where(se => se.SplitId == splitId && se.ExerciseId == log.ExerciseId)
-    //             .Select(se => se.SortOrder)
-    //             .FirstOrDefault()
-    //     )
-    //     .ThenBy(log => log.SetNumber) // optional, for within-exercise order
-    //     .ToList();
-    //   var result = new
-    //   {
-    //     lastSession.SessionId,
-    //     lastSession.SplitId,
-    //     lastSession.StartTime,
-    //     ExerciseLogs = lastSession.ExerciseLogs.Select(log => new
-    //     // ExerciseLogs = orderedLogs.Select(log => new
-    //     {
-    //       log.LogId,
-    //       log.ExerciseId,
-    //       log.Exercise.ExerciseName,
-    //       log.SetNumber,
-    //       log.Reps,
-    //       log.Weight,
-    //       log.TimeInSeconds
-    //     }).ToList()
-    //   };
-    //   return Ok(result);
-    // }
 
     [HttpGet("getLastWorkoutSession/{splitId}")]
     public async Task<IActionResult> GetLastWorkoutSession(int splitId)

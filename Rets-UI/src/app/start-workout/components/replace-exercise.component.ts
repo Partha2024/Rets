@@ -21,7 +21,6 @@ export class ReplaceExerciseModal {
   constructor(private modalCtrl: ModalController) {}
 
   ngOnInit() {
-    console.log('Received exerciseId:', this.exerciseId, typeof this.exercises);
     this.removeExerciseById(this.exerciseId);
   }
 
@@ -39,6 +38,5 @@ export class ReplaceExerciseModal {
 
   removeExerciseById(idToRemove: string | undefined) {
     this.exercises = this.exercises.filter(ex => ex.exerciseId !== idToRemove);
-    // console.log('Exercises after removal:', this.exercises);
   }
 }

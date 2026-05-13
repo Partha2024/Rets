@@ -4,67 +4,90 @@ using System.Text.Json;
 
 public class HybridCacheService : ICacheService
 {
-    private readonly IMemoryCache _memory;
-    private readonly IDatabase _redis;
+  private readonly IMemoryCache _memory;
+  private readonly IDatabase _redis;
 
-    public HybridCacheService(IMemoryCache memory, IConnectionMultiplexer redis)
+  private const string _registryKey = "cache_registry";
+  private static readonly TimeSpan _memoryTtl = TimeSpan.FromMinutes(5);
+
+  private static readonly JsonSerializerOptions _readOptions = new()
+  {
+    PropertyNameCaseInsensitive = true
+  };
+
+  private static readonly JsonSerializerOptions _writeOptions = new()
+  {
+    PropertyNamingPolicy = JsonNamingPolicy.CamelCase
+  };
+
+  public HybridCacheService(IMemoryCache memory, IConnectionMultiplexer redis)
+  {
+    _memory = memory;
+    _redis = redis.GetDatabase();
+  }
+
+  // Fetch: Memory → Redis → (caller handles DB fallback)
+  public async Task<T?> GetAsync<T>(string key)
+  {
+    if (_memory.TryGetValue(key, out T? memoryValue))
     {
-        _memory = memory;
-        _redis = redis.GetDatabase();
+      // Console.WriteLine("💾 Found in RAM");
+      return memoryValue;
     }
 
-    public async Task<T?> GetAsync<T>(string key)
+    var redisValue = await _redis.StringGetAsync(key);
+    if (!redisValue.IsNullOrEmpty)
     {
-        // 🥇 1. Try Memory Cache
-        if (_memory.TryGetValue(key, out T? memoryValue))
-        {
-            Console.WriteLine("Found in RAM");
-            return memoryValue;
-        }
+      // Console.WriteLine("💽 Found in Redis");
+      var deserialized = JsonSerializer.Deserialize<T>(redisValue!, _readOptions);
 
-        // 🥈 2. Try Redis
-        var redisValue = await _redis.StringGetAsync(key);
-        if (!redisValue.IsNullOrEmpty)
-        {
-          Console.WriteLine("Found in Redis");
-            var deserialized = JsonSerializer.Deserialize<T>(redisValue!, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-
-            // populate memory cache
-            _memory.Set(key, deserialized, TimeSpan.FromMinutes(5));
-
-            return deserialized;
-        }
-
-        return default;
+      _memory.Set(key, deserialized, _memoryTtl);
+      return deserialized;
     }
 
-    public async Task SetAsync<T>(string key, T value, TimeSpan expiry)
-    {
-        var json = JsonSerializer.Serialize(value, new JsonSerializerOptions
-        {
-            PropertyNamingPolicy = JsonNamingPolicy.CamelCase
-        });
-        // set in Redis
-        await _redis.StringSetAsync(key, json, (Expiration)expiry);
+    return default;
+  }
 
-        // set in Memory
-        _memory.Set(key, value, TimeSpan.FromMinutes(5));
-    }
+  public async Task SetAsync<T>(string key, T value, TimeSpan expiry)
+  {
+    var json = JsonSerializer.Serialize(value, _writeOptions);
 
-    public async Task RemoveAsync(string key)
+    await _redis.StringSetAsync(key, json, expiry);
+    await _redis.SetAddAsync(_registryKey, key);
+    _memory.Set(key, value, _memoryTtl);
+  }
+
+  public async Task RemoveAsync(string key)
+  {
+    await _redis.KeyDeleteAsync(key);
+    await _redis.SetRemoveAsync(_registryKey, key);
+    _memory.Remove(key);
+  }
+
+  public async Task ClearAllAsync()
+  {
+    // Console.WriteLine("Clearing all cache entries...");
+    var members = await _redis.SetMembersAsync(_registryKey);
+
+    if (members.Length > 0)
     {
-        await _redis.KeyDeleteAsync(key);
+      var stringKeys = members
+          .Select(m => (string?)m)
+          .Where(k => k is not null)
+          .Select(k => k!)
+          .ToArray();
+
+      var keysToDelete = stringKeys
+          .Select(k => (RedisKey)k)
+          .Append(_registryKey)
+          .ToArray();
+
+      await _redis.KeyDeleteAsync(keysToDelete);
+
+      foreach (var key in stringKeys)
+      {
         _memory.Remove(key);
+      }
     }
-
-    public async Task ClearAllAsync()
-    {
-        await _redis.KeyDeleteAsync("WorkoutSessions");
-        await _redis.KeyDeleteAsync("Splits");
-        _memory.Remove("WorkoutSessions");
-        _memory.Remove("Splits");
-    }
+  }
 }

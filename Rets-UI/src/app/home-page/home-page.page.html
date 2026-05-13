@@ -106,8 +106,8 @@
           ></ion-icon>
           <ion-action-sheet
             [trigger]="'open-action-sheet' + i"
-            [buttons]="getActionSheetButtons()"
-            (didDismiss)="editActionHandler($event, session.sessionId)"
+            [buttons]="getActionSheetDeleteButton()"
+            (didDismiss)="deleteActionHandler($event, session.sessionId)"
             id="delteSplit"
           ></ion-action-sheet>
         </ion-item>
