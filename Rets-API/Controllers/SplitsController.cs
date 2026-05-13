@@ -35,7 +35,7 @@ namespace Rets_API.Controllers
           SortOrder = e.SortOrder
         }).ToList()
       };
-      Console.WriteLine($"[CreateSplit] Split created with name: {split} ✅");
+      // Console.WriteLine($"[CreateSplit] Split created with name: {split} ✅");
       _context.Splits.Add(split);
       await _context.SaveChangesAsync();
 
@@ -65,14 +65,8 @@ namespace Rets_API.Controllers
       var allSplits = await _cacheService.GetAsync<object>(key);
       if (allSplits != null)
       {
-        Console.WriteLine($"[GetSplit] Inside cache ✅");
-        // var splits = allSplits as IEnumerable<SplitDto>;
-        // var cachedSplit = splits?.FirstOrDefault(s => s.SplitId == id);
-        // if (cachedSplit != null)
-        // {
-          // Console.WriteLine($"[GetSplit] Returned from cache for ID: {id} ✅");
+        // Console.WriteLine($"[GetSplit] Inside cache ✅");
           return Ok(allSplits);
-        // }
       }
       var split = await _context.Splits
           .Include(s => s.SplitExercises)
@@ -165,7 +159,7 @@ namespace Rets_API.Controllers
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"DeleteSplit exception: {ex.Message}");
+        // Console.WriteLine($"DeleteSplit exception: {ex.Message}");
         return StatusCode(500, new { error = ex.Message });
       }
     }

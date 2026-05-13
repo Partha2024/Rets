@@ -1,7 +1,13 @@
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
-import { AlertController, RefresherCustomEvent, ToastController, NavController, LoadingController } from '@ionic/angular';
+import {
+  AlertController,
+  RefresherCustomEvent,
+  ToastController,
+  NavController,
+  LoadingController,
+} from '@ionic/angular';
 import type { OverlayEventDetail } from '@ionic/core';
 
 @Component({
@@ -22,16 +28,14 @@ export class SplitsPagePage implements OnInit {
     private toastController: ToastController,
     private alertController: AlertController,
     private navCtrl: NavController,
-    private loadingController: LoadingController
+    private loadingController: LoadingController,
   ) {}
 
   loadSplits(): void {
-    console.log('loadSpilt called');
     this.splitService.getSplits().subscribe({
       next: (data) => {
         this.splits = data;
         this.isLoading = false;
-        console.log('Loaded Splits:', this.splits);
       },
       error: (err) => {
         this.isLoading = false;
@@ -63,7 +67,6 @@ export class SplitsPagePage implements OnInit {
         role: 'editSplit',
         icon: 'sync-outline',
         handler: () => {
-          console.log('Replace clicked from exercise : ', splitId);
           this.handleEditClick(splitId);
         },
         data: { action: 'replace' },
@@ -82,11 +85,10 @@ export class SplitsPagePage implements OnInit {
           action: 'reorder',
         },
         handler: () => {
-          console.log('Reorder Exercises of Split : ', splitId);
           this.navCtrl.navigateForward('/reorder-exercises', {
             queryParams: { split_id: splitId },
           });
-        }
+        },
       },
       {
         text: 'Cancel',
@@ -100,7 +102,7 @@ export class SplitsPagePage implements OnInit {
 
   async presentDeleteAlert(
     event: CustomEvent<OverlayEventDetail>,
-    splitId: number | undefined
+    splitId: number | undefined,
   ) {
     const alert = await this.alertController.create({
       header: 'Are you sure?',
@@ -123,19 +125,21 @@ export class SplitsPagePage implements OnInit {
 
   editActionHandler(
     event: CustomEvent<OverlayEventDetail>,
-    splitId: number | undefined
+    splitId: number | undefined,
   ) {
     if (event.detail.role === 'destructive') {
       this.presentDeleteAlert(event, splitId);
     }
   }
 
-  async handleDeleteClick(event: CustomEvent<OverlayEventDetail>, split_id: number | undefined) {
-    console.log(`Dismissed with role: ${event.detail.role}, split_id: ${split_id}`);
+  async handleDeleteClick(
+    event: CustomEvent<OverlayEventDetail>,
+    split_id: number | undefined,
+  ) {
     if (event.detail.role === 'destructive' && split_id !== undefined) {
       const loading = await this.loadingController.create({
         message: 'Deleting Split',
-        spinner: 'crescent'
+        spinner: 'crescent',
       });
       await loading.present();
       this.splitService.deleteSplit(split_id).subscribe({
@@ -146,7 +150,7 @@ export class SplitsPagePage implements OnInit {
               duration: 3000,
               color: 'success',
               position: 'bottom',
-              swipeGesture: 'vertical'
+              swipeGesture: 'vertical',
             });
             await toast.present();
           }, 1000);
@@ -157,20 +161,18 @@ export class SplitsPagePage implements OnInit {
         },
         complete: async () => {
           await loading.dismiss();
-        }
+        },
       });
     }
   }
 
   async handleEditClick(split_id: number | undefined) {
-    console.log(`Edit split_id: ${split_id}`);
     this.router.navigate(['/create-split'], {
       queryParams: { split_id: split_id },
     });
   }
 
   handleStartWorkoutClick(split_id: number | undefined) {
-    console.log(`Edit split_id: ${split_id}`);
     this.router.navigate(['/start-workout'], {
       queryParams: { split_id: split_id },
     });
