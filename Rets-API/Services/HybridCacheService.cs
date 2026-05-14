@@ -59,9 +59,10 @@ public class HybridCacheService : ICacheService
 
   public async Task RemoveAsync(string key)
   {
-    await _redis.KeyDeleteAsync(key);
-    await _redis.SetRemoveAsync(_registryKey, key);
-    _memory.Remove(key);
+    ClearAllAsync().Wait();
+    // await _redis.KeyDeleteAsync(key);
+    // await _redis.SetRemoveAsync(_registryKey, key);
+    // _memory.Remove(key);
   }
 
   public async Task ClearAllAsync()
