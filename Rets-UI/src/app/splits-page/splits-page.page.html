@@ -16,17 +16,17 @@
   </ion-button>
 
   <!-- All Splits Dropdown -->
-  <ion-accordion-group value="first" class="mt-4">
-    <ion-accordion value="first" toggleIcon="chevron-down-outline" toggleIconSlot="start" expand="inset" mode="ios">
+  <!-- <ion-accordion-group value="first" class="mt-4">
+    <ion-accordion value="first" toggleIcon="chevron-down-outline" toggleIconSlot="start" expand="inset" mode="ios"> -->
       
       <!-- All Splits Dropdown Header-->
-      <ion-item slot="header" color="translucent">
+      <ion-item color="translucent" lines="none">
         <ion-label>Your Splits</ion-label>
         <ion-icon (click)="onAddClick($event)" name="add-circle-outline"></ion-icon>
       </ion-item>
       
       <!-- All Splits Dropdown Content-->
-      <ion-list slot="content" class="relative top-[-15px]">
+      <ion-list class="relative top-[-15px]">
         <ion-list *ngIf="splits.length > 0; else noSplits" class="">
           <ion-card *ngFor="let split of splits; let i = index" class="ripple-parent p-6 py-3">
             <div class="split-card-header">
@@ -61,6 +61,6 @@
           </div>
         </ng-template>
       </ion-list>    
-    </ion-accordion>
-</ion-accordion-group>
+    <!-- </ion-accordion>
+</ion-accordion-group> -->
 </ion-content>

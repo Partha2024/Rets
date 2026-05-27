@@ -20,6 +20,7 @@ export class ProfilePagePage implements OnInit {
   weekdays = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
   calendarDays: { date: number | null, level: number }[] = [];
   workoutSessions: workoutSession[] = [];
+  isLoading = false;
 
   constructor(
     private timingService: ApiTimingService,
@@ -35,14 +36,20 @@ export class ProfilePagePage implements OnInit {
   }
 
   loadWorkoutSessions() {
+    this.isLoading = true;
     this.workoutService.getWorkoutSessions().subscribe({
       next: (sessions) => {
         this.workoutSessions = sessions;
         this.generateCalendar();
         this.cdr.markForCheck();
+        // setTimeout(() => {
+        this.isLoading = false;
+        // },5000)
       },
       error: (err) => {
         console.error('Failed to load workout sessions', err);
+        this.isLoading = false;
+        this.cdr.markForCheck();
       }
     });
   }
@@ -97,7 +104,7 @@ export class ProfilePagePage implements OnInit {
         // Determine level based on presence of sessions (single color logic)
         let level = 0;
         if (sessionsToday.length > 0) {
-           level = 1;
+          level = 1;
         }
 
         this.calendarDays.push({ date: i, level });

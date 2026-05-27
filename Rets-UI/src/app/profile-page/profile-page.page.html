@@ -5,9 +5,9 @@
 </ion-header>
 
 <ion-content style="--background: #0e0e0e; color: #ffffff;" [scrollY]="true">
-  <ion-refresher slot="fixed">
+  <!-- <ion-refresher slot="fixed">
     <ion-refresher-content></ion-refresher-content>
-  </ion-refresher>
+  </ion-refresher> -->
 
   <!-- Profile Header -->
   <div class="p-6 flex flex-col items-center">
@@ -18,27 +18,43 @@
   </div>
 
   <!-- Activity Calendar (Month View) -->
+
   <div class="px-4 pb-8">
     <div class="flex justify-between items-center mb-4">
-       <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
-       <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
-       <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
+        <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
+        <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
+        <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
     </div>
     
     <div class="activity-graph-container bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
-       <div class="grid grid-cols-7 gap-1 mb-2">
-         <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
-            {{ day }}
-         </div>
-       </div>
-       <div class="grid grid-cols-7 gap-1">
-         <div *ngFor="let day of calendarDays" 
-              class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs" 
+        <div class="grid grid-cols-7 gap-1 mb-2">
+          <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
+              {{ day }}
+          </div>
+        </div>
+          
+          <div class="grid grid-cols-7 gap-1" *ngIf="!isLoading; else loadingSkeleton">
+            <div *ngFor="let day of calendarDays" 
+                  class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs" 
+                  [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
+                  [style.visibility]="day.date === null ? 'hidden' : 'visible'">
+                {{ day.date ? day.date : '' }}
+            </div>
+          </div>
+          <ng-template #loadingSkeleton>   
+            <!-- <div class="grid grid-cols-7 gap-1">
+              <ion-skeleton-text [animated]="true" *ngFor="let day of calendarDays" 
+              class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs mt-0 mb-0" 
               [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
               [style.visibility]="day.date === null ? 'hidden' : 'visible'">
-             {{ day.date ? day.date : '' }}
-         </div>
-       </div>
+              {{ day.date ? day.date : '' }}
+            </ion-skeleton-text>
+          </div> -->
+          <div class="grid grid-cols-7 gap-1">
+            <ion-skeleton-text *ngFor="let item of [].constructor(35)" [animated]="true" class="rounded-sm w-full aspect-square mt-0 mb-0">
+            </ion-skeleton-text>
+          </div>
+        </ng-template>
     </div>
   </div>
 
@@ -64,10 +80,10 @@
                         [class.text-yellow-500]="t.status === 'PENDING'">
                     {{ t.status }}
                   </span>
-                   • <span class="text-[#ffffff]">
-                      <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
-                   </span>
-                   • <span>{{ t.at | date:'shortTime' }}</span>
+                    • <span class="text-[#ffffff]">
+                        <app-live-duration [start]="t.at" [status]="t.status" [duration]="t.durationMs"></app-live-duration>
+                    </span>
+                    • <span>{{ t.at | date:'shortTime' }}</span>
                 </p>
               </ion-label>
             </ion-card>
@@ -79,13 +95,18 @@
           </ng-template>
 
           <div class="flex justify-end mt-4">
-             <ion-button color="danger" fill="outline" (click)="clearCache()" [disabled]="isClearingCache" size="small" class="font-manrope">
-                <ion-icon name="trash-outline" slot="start"></ion-icon>
-                Clear Cache
-             </ion-button>
+              <ion-button color="danger" fill="outline" (click)="clearCache()" [disabled]="isClearingCache" size="small" class="font-manrope">
+                  <ion-icon name="trash-outline" slot="start"></ion-icon>
+                  Clear Cache
+              </ion-button>
           </div>
         </div>
       </ion-accordion>
     </ion-accordion-group>
   </div>
 </ion-content>
+<!-- <ion-content *ngIf="isLoading">
+  <div class="ion-padding text-center">
+    <ion-spinner *ngIf="isLoading" name="dots" class=""></ion-spinner>
+  </div>
+</ion-content> -->
