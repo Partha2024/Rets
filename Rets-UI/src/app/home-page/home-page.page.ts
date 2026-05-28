@@ -14,7 +14,7 @@ import {
   MenuController,
 } from '@ionic/angular';
 import { DatePipe } from '@angular/common';
-import { exercises } from '../data/exercises.data';
+import { exercises, WeightCalculationType } from '../data/exercises.data';
 
 interface DisplaySession {
   sessionId: number | undefined;
@@ -111,10 +111,19 @@ export class HomePagePage implements OnInit {
 
       let totalSets = session.exerciseLogs.length;
       var totalVolume = 0;
+      const exerciseMaps = Object.fromEntries(
+        this.exercises.map(ex => [ex.exerciseId, ex])
+      );
       session.exerciseLogs.forEach((log: any) => {
-        if (log.reps != null && log.weight != null) {
-          totalVolume += log.reps * log.weight;
-        }
+        const exercise = exerciseMaps[log.exerciseId];        
+        if (log.reps == null || log.weight == null) return;
+        if (!exercise) return;
+        
+        if(exercise.weightCalculationType === WeightCalculationType.REPS_ONLY) totalVolume += log.reps;
+        else if(exercise.weightCalculationType === WeightCalculationType.TIME_HOLD) totalVolume += 75 * log.time;
+        else if(exercise.weightCalculationType === WeightCalculationType.MACHINE_STACK) totalVolume += log.weight*log.reps;
+        else if(exercise.weightCalculationType === WeightCalculationType.PER_SIDE_BARBELL) totalVolume += ((log.weight * 2) + 20)*log.reps;
+        else if(exercise.weightCalculationType === WeightCalculationType.PER_HAND_DUMBBELL) totalVolume += (log.weight * 2)*log.reps;
       });
 
       return {

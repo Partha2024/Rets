@@ -1,3 +1,4 @@
+<!-- Sidebar Menu -->
 <ion-menu contentId="main-content">
   <ion-header>
     <ion-toolbar>
@@ -5,7 +6,6 @@
     </ion-toolbar>
   </ion-header>
   <ion-content class="ion-padding">
-    
     <!-- Sorting Section -->
     <ion-list-header>
       <ion-label>Sort By</ion-label>
@@ -35,7 +35,7 @@
       </ion-item>
 
       <!-- Filter by Split -->
-       <ion-item>
+      <ion-item>
         <ion-select label="Split" placeholder="Select Split" [value]="selectedSplitFilter" (ionChange)="applyFilter('split', $event.detail.value)">
            <ion-select-option *ngFor="let split of availableSplits" [value]="split">{{ split }}</ion-select-option>
         </ion-select>
@@ -44,13 +44,13 @@
       <!-- Filter by Day -->
       <ion-item>
         <ion-select label="Day" placeholder="Select Day" [value]="selectedDayFilter" (ionChange)="applyFilter('day', $event.detail.value)">
-           <ion-select-option value="Monday">Monday</ion-select-option>
-           <ion-select-option value="Tuesday">Tuesday</ion-select-option>
-           <ion-select-option value="Wednesday">Wednesday</ion-select-option>
-           <ion-select-option value="Thursday">Thursday</ion-select-option>
-           <ion-select-option value="Friday">Friday</ion-select-option>
-           <ion-select-option value="Saturday">Saturday</ion-select-option>
-           <ion-select-option value="Sunday">Sunday</ion-select-option>
+          <ion-select-option value="Monday">Monday</ion-select-option>
+          <ion-select-option value="Tuesday">Tuesday</ion-select-option>
+          <ion-select-option value="Wednesday">Wednesday</ion-select-option>
+          <ion-select-option value="Thursday">Thursday</ion-select-option>
+          <ion-select-option value="Friday">Friday</ion-select-option>
+          <ion-select-option value="Saturday">Saturday</ion-select-option>
+          <ion-select-option value="Sunday">Sunday</ion-select-option>
         </ion-select>
       </ion-item>
 
