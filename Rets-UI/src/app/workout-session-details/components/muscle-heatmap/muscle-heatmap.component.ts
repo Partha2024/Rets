@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { Component, Input, OnChanges, SimpleChanges, ChangeDetectionStrategy } from '@angular/core';
 
 export type MuscleRegion =
   | 'chest'
@@ -16,6 +16,7 @@ export type MuscleRegion =
   selector: 'app-muscle-heatmap',
   templateUrl: './muscle-heatmap.component.html',
   styleUrls: ['./muscle-heatmap.component.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class MuscleHeatmapComponent implements OnChanges {

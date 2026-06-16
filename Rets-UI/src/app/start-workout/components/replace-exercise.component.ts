@@ -1,4 +1,4 @@
-import { Component, Input } from '@angular/core';
+import { Component, Input, ChangeDetectionStrategy } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import { exercises } from '../../data/exercises.data';
 
@@ -6,6 +6,7 @@ import { exercises } from '../../data/exercises.data';
   selector: 'app-replace-exercise',
   templateUrl: './replace-exercise.component.html',
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   styleUrls: ['./replace-exercise.scss']
 })
 

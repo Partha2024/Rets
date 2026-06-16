@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { Router } from '@angular/router';
 import { SplitService, Split } from '../services/split.service';
 import {
@@ -14,6 +14,7 @@ import type { OverlayEventDetail } from '@ionic/core';
   selector: 'app-splits-page',
   templateUrl: './splits-page.page.html',
   styleUrls: ['./splits-page.page.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class SplitsPagePage implements OnInit {

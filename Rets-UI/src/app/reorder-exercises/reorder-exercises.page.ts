@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ItemReorderCustomEvent, LoadingController } from '@ionic/angular';
 import { ActivatedRoute } from '@angular/router';
 import { Split, SplitExercise, SplitService } from '../services/split.service';
@@ -10,6 +10,7 @@ import { exercises } from '../data/exercises.data';
   selector: 'app-reorder-exercises',
   templateUrl: './reorder-exercises.page.html',
   styleUrls: ['./reorder-exercises.page.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class ReorderExercisesPage implements OnInit {

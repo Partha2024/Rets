@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import {
   WorkoutService,
@@ -31,6 +31,7 @@ interface DisplaySession {
   templateUrl: './home-page.page.html',
   styleUrls: ['./home-page.page.scss'],
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DatePipe],
 })
 export class HomePagePage implements OnInit {

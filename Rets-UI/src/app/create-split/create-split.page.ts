@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import {
   NavController,
   ToastController,
@@ -16,6 +16,7 @@ import { exercises } from '../data/exercises.data';
   selector: 'app-create-split',
   templateUrl: './create-split.page.html',
   styleUrls: ['./create-split.page.scss'],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false,
 })
 export class CreateSplitPage implements OnInit {

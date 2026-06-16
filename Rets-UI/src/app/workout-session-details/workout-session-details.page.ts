@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectionStrategy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { DatePipe } from '@angular/common';
 import { ToastController } from '@ionic/angular';
@@ -64,6 +64,7 @@ type MuscleRegion =
   templateUrl: './workout-session-details.page.html',
   styleUrls: ['./workout-session-details.page.scss'],
   standalone: false,
+  changeDetection: ChangeDetectionStrategy.Eager,
   providers: [DatePipe],
 })
 export class WorkoutSessionDetailsPage implements OnInit {

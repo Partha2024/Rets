@@ -1,9 +1,10 @@
-import { Component, Input, OnDestroy, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, Input, OnDestroy, OnInit, ChangeDetectorRef, ChangeDetectionStrategy } from '@angular/core';
 
 @Component({
   selector: 'app-live-duration',
   template: `{{ formattedTime }}`,
   styles: [`:host { display: inline; }`],
+  changeDetection: ChangeDetectionStrategy.Eager,
   standalone: false
 })
 export class LiveDurationComponent implements OnInit, OnDestroy {
