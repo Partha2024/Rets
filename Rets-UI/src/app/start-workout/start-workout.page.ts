@@ -28,7 +28,6 @@ import type { OverlayEventDetail } from '@ionic/core';
 
 import { exercises, Exercise } from '../data/exercises.data';
 
-
 type ExerciseWithOrder = Exercise & { sortOrder: number };
 
 @Component({
@@ -38,6 +37,7 @@ type ExerciseWithOrder = Exercise & { sortOrder: number };
   standalone: false,
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
+
 export class StartWorkoutPage implements OnInit {
   @ViewChild(IonModal) modal!: IonModal;
 
@@ -59,6 +59,7 @@ export class StartWorkoutPage implements OnInit {
   } = {};
 
   exercises: Exercise[] = exercises;
+  isLoading: boolean = false;
 
   constructor(
     private navCtrl: NavController,
@@ -125,6 +126,7 @@ export class StartWorkoutPage implements OnInit {
     this.route.queryParams.subscribe((params) => {
       this.splitId = params['split_id'];
       if (this.splitId) {
+        this.isLoading = true;
         this.splitService.getSplit(this.splitId).subscribe({
           next: (data) => {
             this.splitName = data.splitName;
@@ -144,9 +146,11 @@ export class StartWorkoutPage implements OnInit {
             // compute selectedExercises after initial data load
             this.recomputeSelectedExercises();
             this.cdr.markForCheck();
+            this.isLoading = false;
           },
           error: (err) => {
             console.error('Error loading Split:', err);
+            this.isLoading = false;
           },
         });
 
@@ -362,8 +366,7 @@ export class StartWorkoutPage implements OnInit {
       message: 'Saving Session',
       spinner: 'crescent',
     });
-    await loading.present();
-
+    
     this.selectedExercises.forEach((ex) => {
       const sets = this.setInputs[ex.exerciseId] || [];
       sets.forEach((set, index) => {
@@ -402,7 +405,9 @@ export class StartWorkoutPage implements OnInit {
         swipeGesture: 'vertical',
       });
       await toast.present();
+      await loading.dismiss();
     } else {
+      await loading.present();
       const workoutPayload = {
         SplitId: this.splitId,
         StartTime: new Date().toISOString(),

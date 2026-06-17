@@ -84,6 +84,9 @@ export class VolumeChartComponent implements AfterViewInit {
           responsive: true,
           maintainAspectRatio: false,
           plugins: { legend: { display: false } },
+          interaction: {
+            intersect: false,
+          },
           scales: {
             x: {
               display: false,
