@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { TabsPage } from './tabs.page';
+import { CommonModule } from '@angular/common';
 
 const routes: Routes = [
   {
@@ -13,11 +14,11 @@ const routes: Routes = [
       },
       {
         path: 'splits',
-        loadChildren: () => import('../splits-page/splits-page-routing.module').then(m => m.SplitsPagePageRoutingModule)
+        loadChildren: () => import('../splits-page/splits-page.module').then(m => m.SplitsPagePageModule)
       },
       {
         path: 'profile',
-        loadChildren: () => import('../profile-page/profile-page-routing.module').then(m => m.ProfilePagePageRoutingModule)
+        loadChildren: () => import('../profile-page/profile-page.module').then(m => m.ProfilePagePageModule)
       },
       {
         path: '',

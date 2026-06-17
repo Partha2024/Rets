@@ -42,9 +42,7 @@ export class ProfilePagePage implements OnInit {
         this.workoutSessions = sessions;
         this.generateCalendar();
         this.cdr.markForCheck();
-        // setTimeout(() => {
         this.isLoading = false;
-        // },5000)
       },
       error: (err) => {
         console.error('Failed to load workout sessions', err);
@@ -88,7 +86,7 @@ export class ProfilePagePage implements OnInit {
 
     // Fill empty padding days before the 1st of the month
     for (let i = 0; i < firstDayIndex; i++) {
-       this.calendarDays.push({ date: null, level: 0 });
+      this.calendarDays.push({ date: null, level: 0 });
     }
 
     // Fill the actual days of the month

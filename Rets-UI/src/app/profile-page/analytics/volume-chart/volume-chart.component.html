@@ -1,0 +1,10 @@
+<div class="flex justify-between items-center mb-4">
+  <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevRange()"></ion-icon>
+  <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">Volume Trend - {{ rangeTitle }}</h3>
+  <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextRange()"></ion-icon>
+</div>
+<div class="bg-[#1a1919] rounded-xl border border-[#262626] p-4">
+  <div class="h-[320px]">
+    <canvas #volumeCanvas></canvas>
+  </div>
+</div>

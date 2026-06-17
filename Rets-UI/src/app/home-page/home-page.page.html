@@ -75,14 +75,14 @@
     
     <!-- Active Filters Display -->
     <div class="px-3 py-2" *ngIf="filterType !== 'all'">
-      <ion-chip (click)="applyFilter('all')">
+      <ion-chip (click)="applyFilter('all')" class="p-3">
         <ion-label *ngIf="filterType === 'split'">{{ selectedSplitFilter }}</ion-label>
         <ion-label *ngIf="filterType === 'day'">{{ selectedDayFilter }}</ion-label>
         <ion-icon name="close-circle"></ion-icon>
       </ion-chip>
     </div>
 
-    <ion-card class="m-0 rounded-none">
+    <ion-card class="m-0 rounded-none min-h-full">
       <ion-list
         [inset]="true"
         *ngFor="let session of displaySessions; let i = index"
@@ -92,7 +92,7 @@
       >
         <!-- Header - Split Name & Menu Icon -->
         <ion-item lines="full" class="p-0">
-          <ion-label class="p-0 m-0 mt-2">
+          <ion-label class="p-0 m-0 mt-3">
             <h2 class="text-xl"><strong>{{ session.splitName }}</strong></h2>
             <ion-text class="text-sm/7 relative top-[-2px] line" color="medium">
               {{ session.startTime | date: 'dd MMMM yy' }}
@@ -143,7 +143,7 @@
             <ion-thumbnail slot="start" class="circle-thumb">
               <img [src]="'./assets/exercises/' + exercise.exerciseImage " alt="" />
             </ion-thumbnail>
-            <ion-label>
+            <ion-label class="ml-2">
               {{ exercise.numberOfSets }} Sets of {{ exercise.exerciseName }}
             </ion-label>
           </ion-item>

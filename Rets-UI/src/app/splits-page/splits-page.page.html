@@ -28,7 +28,7 @@
       <!-- All Splits Dropdown Content-->
       <ion-list class="relative top-[-15px]">
         <ion-list *ngIf="splits.length > 0; else noSplits" class="">
-          <ion-card *ngFor="let split of splits; let i = index" class="ripple-parent p-6 py-3">
+          <ion-card *ngFor="let split of splits; let i = index" class="ripple-parent p-5 py-4 m-4">
             <div class="split-card-header">
               <ion-label>
                 <h1>{{ split.splitName }}</h1>

@@ -17,9 +17,55 @@
     <h2 class="text-2xl font-bold font-lexend text-[#ffffff] mb-2">Partha</h2>
   </div>
 
-  <!-- Activity Calendar (Month View) -->
 
-  <div class="px-4 pb-8">
+  <!-- Carousal -->
+
+  <swiper-container class="min-h-[380px] px-4 pb-8" slides-per-view="1" space-between="12" pagination="true">
+
+    <!-- Activity Calendar -->
+    <swiper-slide>
+      <div class="analytics-slide">
+        <div class="flex justify-between items-center mb-4">
+            <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
+            <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
+            <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
+        </div>
+        
+        <div class="activity-graph-container min-h-[353px] bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
+            <div class="grid grid-cols-7 gap-1 mb-2">
+              <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
+                  {{ day }}
+              </div>
+            </div>
+              
+              <div class="grid grid-cols-7 gap-1" *ngIf="!isLoading; else loadingSkeleton">
+                <div *ngFor="let day of calendarDays" 
+                      class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs" 
+                      [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
+                      [style.visibility]="day.date === null ? 'hidden' : 'visible'">
+                    {{ day.date ? day.date : '' }}
+                </div>
+              </div>
+              <ng-template #loadingSkeleton>   
+              <div class="grid grid-cols-7 gap-1">
+                <ion-skeleton-text *ngFor="let item of [].constructor(35)" [animated]="true" class="rounded-sm w-full aspect-square mt-0 mb-0">
+                </ion-skeleton-text>
+              </div>
+            </ng-template>
+        </div>
+      </div>
+    </swiper-slide>
+
+    <swiper-slide>
+      <div class="analytics-slide">
+        <app-volume-chart [workoutSessions]="workoutSessions"></app-volume-chart>
+      </div>
+    </swiper-slide>
+
+  </swiper-container>
+
+  <!-- Activity Calendar (Month View) -->
+  <!-- <div class="px-4 pb-8">
     <div class="flex justify-between items-center mb-4">
         <ion-icon name="chevron-back" class="text-2xl text-[#3880ff]" (click)="prevMonth()" [ngClass]="{'opacity-30': !hasPrevMonth}"></ion-icon>
         <h3 class="font-lexend text-[#ffffff] text-lg text-center m-0">{{ currentMonthDate | date:'MMMM yyyy' }}</h3>
@@ -42,21 +88,13 @@
             </div>
           </div>
           <ng-template #loadingSkeleton>   
-            <!-- <div class="grid grid-cols-7 gap-1">
-              <ion-skeleton-text [animated]="true" *ngFor="let day of calendarDays" 
-              class="activity-cell rounded-sm w-full aspect-square flex items-center justify-center text-[#adaaaa] font-manrope text-xs mt-0 mb-0" 
-              [ngClass]="day.date ? 'level-' + day.level : 'opacity-0'"
-              [style.visibility]="day.date === null ? 'hidden' : 'visible'">
-              {{ day.date ? day.date : '' }}
-            </ion-skeleton-text>
-          </div> -->
           <div class="grid grid-cols-7 gap-1">
             <ion-skeleton-text *ngFor="let item of [].constructor(35)" [animated]="true" class="rounded-sm w-full aspect-square mt-0 mb-0">
             </ion-skeleton-text>
           </div>
         </ng-template>
     </div>
-  </div>
+  </div> -->
 
   <!-- Stats for Nerds / API timings -->
   <div class="px-4 pb-12">
