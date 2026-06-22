@@ -113,8 +113,24 @@
 }
 
 .callout-card {
-  margin: 8px 16px 0;
-  border-left: 4px solid var(--ion-color-warning);
+  margin: 16px 16px;
+  border: 2px solid var(--ion-color-warning);
+  background: linear-gradient(
+      140deg,
+      var(--details-hero-grad-start) 10%,
+      var(--details-hero-grad-mid) 55%,
+      var(--details-hero-grad-end)
+    );
+  border-radius: 18px;
+}
+
+.callout-item{
+  background: linear-gradient(
+      140deg,
+      var(--details-hero-grad-start) 10%,
+      var(--details-hero-grad-mid) 55%,
+      var(--details-hero-grad-end)
+    );
 }
 
 .section-header {

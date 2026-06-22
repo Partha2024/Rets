@@ -41,7 +41,7 @@ export class VolumeChartComponent implements AfterViewInit {
 
   @Input()
   set workoutSessions(value: workoutSession[]) {
-    this._workoutSessions = value;
+    this._workoutSessions = value.reverse();
     if (this.viewInitialized && value.length) {
       this.initChart();
     }
@@ -142,11 +142,14 @@ export class VolumeChartComponent implements AfterViewInit {
     this.chart.update();
   }
 
-  private buildLabels(sessions: workoutSession[]): string[] {
+  private buildLabels( sessions: workoutSession[] ): string[] {
     return sessions.map(session =>
-      new Date(session.startTime).toLocaleDateString(
-        'en-US', { month: 'short', day: 'numeric' }
-      )
+      `${new Date(
+        session.startTime
+      ).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric'
+      })} • ${session.split.splitName}`
     );
   }
 

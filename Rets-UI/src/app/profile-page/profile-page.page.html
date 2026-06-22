@@ -20,7 +20,7 @@
 
   <!-- Carousal -->
 
-  <swiper-container class="min-h-[380px] px-4 pb-8" slides-per-view="1" space-between="12" pagination="true">
+  <swiper-container class="min-h-[320px] px-4 pb-8" slides-per-view="1" space-between="12" pagination="true">
 
     <!-- Activity Calendar -->
     <swiper-slide>
@@ -31,7 +31,7 @@
             <ion-icon name="chevron-forward" class="text-2xl text-[#3880ff]" (click)="nextMonth()" [ngClass]="{'opacity-30': !hasNextMonth}"></ion-icon>
         </div>
         
-        <div class="activity-graph-container min-h-[353px] bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
+        <div class="activity-graph-container min-h-[309px] bg-[#1a1919] rounded-xl p-3 border border-[#262626]">
             <div class="grid grid-cols-7 gap-1 mb-2">
               <div *ngFor="let day of weekdays" class="text-center text-[0.65rem] font-manrope text-[#adaaaa] font-bold">
                   {{ day }}

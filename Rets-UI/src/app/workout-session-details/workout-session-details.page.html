@@ -22,12 +22,12 @@
           </div>
         </div>
         <div class="hero-chips">
-          <ion-chip color="tertiary">
-            <ion-icon name="calendar-clear-outline"></ion-icon>
+          <ion-chip color="tertiary" class="p-3">
+            <ion-icon name="calendar-clear-outline" class="mr-1"></ion-icon>
             <ion-label>{{ dayLabel }}</ion-label>
           </ion-chip>
-          <ion-chip color="medium">
-            <ion-icon name="barbell"></ion-icon>
+          <ion-chip color="medium" class="py-3 px-3">
+            <ion-icon name="barbell" class="mr-1"></ion-icon>
             <ion-label>{{ summary.totalExercises }} Exercises</ion-label>
           </ion-chip>
         </div>
@@ -53,17 +53,17 @@
       </div>
     </div>
 
-    <ion-card class="callout-card" *ngIf="summary.topSet">
-      <ion-item lines="none">
-        <ion-icon name="trophy-outline" slot="start" color="warning"></ion-icon>
-        <ion-label>
-          <h3>Top Set</h3>
+    <ion-card class="callout-card m-3 p-3" *ngIf="summary.topSet">
+      <div class="callout-item flex pl-4 items-center" lines="none">
+        <ion-icon class="text-[25px]" name="trophy-outline" slot="start" color="warning"></ion-icon>
+        <ion-label class="mx-3">
+          <h3 class="text-white">Top Set</h3>
           <p>
             {{ summary.topSet.exerciseName }} - {{ summary.topSet.weight }} kg x
             {{ summary.topSet.reps }} reps
           </p>
         </ion-label>
-      </ion-item>
+      </div>
     </ion-card>
 
     <app-muscle-heatmap [heatmap]="muscleHeatmap"></app-muscle-heatmap>
@@ -73,7 +73,7 @@
       <p>Set-by-set details and totals for each exercise.</p>
     </div>
 
-    <ion-card class="exercise-card" *ngFor="let exercise of exerciseGroups">
+    <ion-card class="exercise-card pt-3" *ngFor="let exercise of exerciseGroups">
       <ion-item lines="none">
         <ion-thumbnail slot="start" class="circle-thumb">
           <img
@@ -81,11 +81,11 @@
             [alt]="exercise.exerciseName"
           />
         </ion-thumbnail>
-        <ion-label>
+        <ion-label class="pl-3">
           <h2>{{ exercise.exerciseName }}</h2>
           <p>{{ exercise.primaryMuscle }}</p>
         </ion-label>
-        <ion-badge color="primary">{{ exercise.totalSets }} sets</ion-badge>
+        <ion-badge color="primary" class="p-1">{{ exercise.totalSets }} sets</ion-badge>
       </ion-item>
 
       <div class="exercise-metrics">
@@ -106,7 +106,7 @@
       <div class="sets-table">
         <div class="sets-header">
           <span>Set</span>
-          <span>Reps or Time</span>
+          <span>Reps/Time</span>
           <span>Load</span>
           <span>Volume</span>
         </div>

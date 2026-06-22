@@ -41,13 +41,13 @@
 
   <ion-list *ngIf="exercises.length > 0; else loading" >
     <!-- <ion-reorder-group [disabled]="false" (ionReorderEnd)="handleReorderEnd($any($event))"> -->
-      <ion-card *ngFor="let exercise of filteredExercises" class="mx-1">
+      <ion-card *ngFor="let exercise of filteredExercises" class="mx-1 my-2">
         <ion-item lines="none" class="">
           <!-- <ion-reorder slot="start"></ion-reorder> -->
           <ion-thumbnail slot="start" class="circle-thumb">
             <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="{{ exercise.exerciseName }}" />
           </ion-thumbnail>
-          <ion-label>
+          <ion-label class="m-2">
             <h2>{{ exercise.exerciseName }}</h2>
             <p>{{ exercise.muscleGroup }}</p>
           </ion-label>

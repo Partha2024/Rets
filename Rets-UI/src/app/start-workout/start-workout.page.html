@@ -19,15 +19,15 @@
   </ion-refresher>
 
   <ion-list class="mt-6">
-    <ion-card class="bg-transparent mx-0 mt-0 mb-6" *ngFor="let exercise of selectedExercises; let j = index">
+    <ion-card class="bg-transparent mx-0 my-4" *ngFor="let exercise of selectedExercises; let j = index">
       <!-- Card Header -->
       <ion-card-header class="p-0">
         <ion-item lines="none" class="p-0">
           <ion-thumbnail slot="start" class="circle-thumb">
             <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="" />
           </ion-thumbnail>
-          <ion-label>
-            <h2 class="">
+          <ion-label class="ml-3">
+            <h2>
               {{ exercise.exerciseName }}
             </h2>
           </ion-label>
@@ -40,7 +40,7 @@
         </ion-item>
       </ion-card-header>
       <!-- Card Content -->
-      <ion-card-content class="py-0 px-0">
+      <ion-card-content class="p-0 m-0">
         <!-- Table Label -->
         <div class="labels my-1 flex justify-around items-center text-base text-center p-4">
           <div class="setNumber w-7 text-center">SET</div>
@@ -55,8 +55,8 @@
         <!-- Dynamic Rows -->
         <ion-list>
           <ion-item-sliding *ngFor="let item of lastSessionData[exercise.exerciseId]; let i = index">
-            <ion-item lines="none" [attr.color]="i % 2 == 0 ? 'light' : null" class="inputContainer h-[51px]">
-              <div class="flex items-center justify-around w-full px-0">
+            <ion-item lines="none" [attr.color]="i % 2 == 0 ? 'light' : null" class="inputContainer h-[50px]">
+              <div class="flex items-center justify-around w-full h-[51px] px-0">
                 <!-- Set number -->
                 <div class="setNumber w-7 text-center text-white">
                   <ion-input [readonly]="true" [value]="i + 1"></ion-input>
@@ -132,13 +132,13 @@
               debounce="200">
             </ion-searchbar>
 
-            <ion-list *ngIf="exercises.length > 0; else loading" >
-              <ion-card *ngFor="let exercise of filteredExercises" class="mx-1">
+            <ion-list *ngIf="exercises.length > 0; else loading" id="add-new-exercise" >
+              <ion-card *ngFor="let exercise of filteredExercises" class="mx-0 my-3">
                 <ion-item lines="none" class="">
                   <ion-thumbnail slot="start" class="circle-thumb"               >
                     <img [src]="'./assets/exercises/' + exercise.exerciseImage" alt="{{ exercise.exerciseName }}" />
                   </ion-thumbnail>
-                  <ion-label>
+                  <ion-label class="mx-3">
                     <h2>{{ exercise.exerciseName }}</h2>
                     <p>{{ exercise.muscleGroup }}</p>
                   </ion-label>
