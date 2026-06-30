@@ -16,13 +16,13 @@ export type MuscleRegion =
   selector: 'app-muscle-heatmap',
   templateUrl: './muscle-heatmap.component.html',
   styleUrls: ['./muscle-heatmap.component.scss'],
-  changeDetection: ChangeDetectionStrategy.Eager,
+  changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: false,
 })
 export class MuscleHeatmapComponent implements OnChanges {
   @Input() heatmap: Partial<Record<MuscleRegion, number>> = {};
   @Input() title = 'Targeted Muscles';
-  @Input() subtitle = 'Heat intensity based on set count.';
+  @Input() subtitle = 'Heat intensity based on Volume';
 
   private maxValue = 1;
 
